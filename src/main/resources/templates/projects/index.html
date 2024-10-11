@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Quản lý dự án - Task Management System</title>
+</head>
+<body>
+    <section>
+        <h1>Quản lý dự án</h1>
+        <div th:each="project: ${projects}">
+            <h2 th:text="${project.name}"></h2>
+        </div>
+    </section>
+</body>
+</html>

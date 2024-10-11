@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Tạo dự án mới - Task Management System</title>
+</head>
+<body>  
+    <section>
+        <h1>Tạo dự án mới</h1>
+        <form th:action="@{/projects/create}" method="post">
+            <div>
+                <label for="name">Tên dự án:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div>
+                <label for="description">Mô tả:</label>
+                <textarea id="description" name="description" rows="4"></textarea>
+            </div>
+            <button type="submit">Tạo dự án</button>
+        </form>
+    </section>
+</body>
+</html>
