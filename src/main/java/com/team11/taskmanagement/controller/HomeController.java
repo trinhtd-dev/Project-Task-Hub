@@ -23,8 +23,12 @@ public class HomeController {
     
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        model.addAttribute("currentUrl", "/dashboard");
-        return "home/index";
+        try {
+            model.addAttribute("currentUrl", "/dashboard");
+            return "home/index";
+        } catch (Exception e) {
+            return "error";
+        }
     }
 
     @GetMapping("/error")

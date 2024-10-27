@@ -19,7 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
+    @Autowired  
     public CustomUserDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -32,7 +32,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
-                .password(user.getPassword()) // Không mã hóa lại mật khẩu ở đây
+                .password(user.getPassword())
                 .roles(user.getRole().name())
                 .build();
     }

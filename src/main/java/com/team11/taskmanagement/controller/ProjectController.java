@@ -1,21 +1,28 @@
 package com.team11.taskmanagement.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import com.team11.taskmanagement.service.ProjectService;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.team11.taskmanagement.dto.ProjectDTO;
 import com.team11.taskmanagement.model.Project;
+import com.team11.taskmanagement.service.ProjectService;
+import com.team11.taskmanagement.service.UserService;
+
 @Controller
 public class ProjectController {
 
     private final ProjectService projectService;
-
-    @Autowired
-    public ProjectController(ProjectService projectService) {
+    private final UserService userService;
+    
+    public ProjectController(ProjectService projectService, UserService userService) {
         this.projectService = projectService;
+        this.userService = userService;
     }
 
     @GetMapping("/projects")
@@ -27,13 +34,22 @@ public class ProjectController {
 
     @GetMapping("/projects/create")
     public String createProjectForm(Model model) {
+        model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("project", new Project());
         return "projects/project-create";
     }
 
+
     @PostMapping("/projects/create")
-    public String createProject(@ModelAttribute Project project) {
-        projectService.createProject(project);
-        return "redirect:/projects";
+    public ResponseEntity<?> createProject(@RequestBody ProjectDTO projectDTO) {
+        try {
+            Project createdProject = projectService.createProject(projectDTO);
+            return ResponseEntity.ok(createdProject);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
+        } 
     }
 
     @GetMapping("/projects/trash")

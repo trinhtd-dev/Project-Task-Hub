@@ -29,8 +29,8 @@ public class Task {
     private Project project;
 
     @ManyToOne
-    @JoinColumn(name = "assigned_to")
-    private User assignedTo;
+    @JoinColumn(name = "assignee")
+    private User assignee;
 
     @ManyToOne
     @JoinColumn(name = "created_by", nullable = false)

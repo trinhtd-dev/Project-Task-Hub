@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -47,6 +49,9 @@ public class User implements UserDetails {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ManyToMany(mappedBy = "members")
+    private Set<Project> projects = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
