@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -53,6 +54,9 @@ public class User implements UserDetails {
     @ManyToMany(mappedBy = "members")
     private Set<Project> projects = new HashSet<>();
 
+    @ManyToMany(mappedBy = "assignees")
+    private Set<Task> assignedTasks = new HashSet<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
@@ -76,5 +80,18 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return this.status == UserStatus.ACTIVE;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

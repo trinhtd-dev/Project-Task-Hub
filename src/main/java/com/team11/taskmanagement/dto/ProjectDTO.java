@@ -2,8 +2,8 @@ package com.team11.taskmanagement.dto;
 
 import java.time.LocalDate;
 import java.util.List;
-
 import lombok.Data;
+import com.team11.taskmanagement.dto.task.TaskDTO;
 
 @Data
 public class ProjectDTO {
@@ -16,13 +16,4 @@ public class ProjectDTO {
     private String tag;
     private List<Long> memberIds;
     private List<TaskDTO> tasks;
-
-    @Data
-    public static class TaskDTO {
-        private String name;
-        private String description;
-        private LocalDate dueDate;
-        private List<Long> assigneeIds;
-
-    }
 }

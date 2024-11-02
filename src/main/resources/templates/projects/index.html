@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{base :: layout(~{::title}, ~{::section}, ~{::additionalCss})}">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{base :: layout(~{::title}, ~{::content}, ~{::additionalCss}, ~{::additionalJs})}">
 <head>
     <title>Danh sách dự án - Task Management System</title>
     <additionalCss>
@@ -8,7 +8,7 @@
     </additionalCss>
 </head>
 <body>
-    <section class="container mt-4">
+    <content class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3"><i class="fas fa-project-diagram me-2"></i>Danh sách dự án</h1>
             <a href="/projects/create" class="btn btn-primary">
@@ -62,7 +62,8 @@
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-tasks me-1 text-muted"></i>
-                                    <small class="text-muted">0/1</small>
+                                    <small class="text-muted" 
+                                           th:text="${project.getCompletedTasksCount() + '/' + project.getTasks().size()}">0/0</small>
                                 </div>
                             </div>
                         </div>
@@ -93,6 +94,9 @@
                 </div>
             </div>
         </div>
-    </section>
+    </content>
+    <additionalJs>
+        <script th:src="@{/js/projects/index.js}"></script>
+    </additionalJs>
 </body>
 </html>

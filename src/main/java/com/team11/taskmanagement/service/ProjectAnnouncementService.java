@@ -1,10 +1,13 @@
 package com.team11.taskmanagement.service;
 
+import com.team11.taskmanagement.model.Project;
 import com.team11.taskmanagement.model.ProjectAnnouncement;
+import com.team11.taskmanagement.model.User;
 import com.team11.taskmanagement.repository.ProjectAnnouncementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +35,21 @@ public class ProjectAnnouncementService {
 
     public void deleteProjectAnnouncement(Long id) {
         projectAnnouncementRepository.deleteById(id);
+    }
+
+    public ProjectAnnouncement createAnnouncement(Project project, User creator, String title, String content) {
+        ProjectAnnouncement announcement = new ProjectAnnouncement();
+        announcement.setProject(project);
+        announcement.setCreatedBy(creator);
+        announcement.setTitle(title);
+        announcement.setContent(content);
+        announcement.setCreatedAt(LocalDateTime.now());
+        announcement.setIsDeleted(false);
+        return projectAnnouncementRepository.save(announcement);
+    }
+
+    public List<ProjectAnnouncement> getAnnouncementsByProject(Project project) {
+        return projectAnnouncementRepository.findByProjectAndIsDeletedFalseOrderByCreatedAtDesc(project);
     }
 
 }

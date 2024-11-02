@@ -2,9 +2,7 @@ package com.team11.taskmanagement.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
@@ -22,7 +20,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
-
+import java.time.temporal.ChronoUnit;
 @Data
 @Entity
 @Table(name = "projects")
@@ -68,11 +66,11 @@ public class Project {
     @Column(name = "deleted_by")
     private Long deletedBy;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Task> tasks = new ArrayList<>();
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private Set<Task> tasks = new HashSet<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectAnnouncement> announcements = new ArrayList<>();
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private Set<ProjectAnnouncement> announcements = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "priority")
@@ -99,4 +97,71 @@ public class Project {
         members.remove(user);
         user.getProjects().remove(this);
     }
+
+    public Set<Task> getTasks() {
+        return tasks;
+    }
+
+    public Set<ProjectAnnouncement> getAnnouncements() {
+        return announcements;
+    }
+
+    public Set<User> getMembers() {
+        return members;
+    }
+
+    public long getCompletedTasksCount() {
+        return tasks.stream()
+                .filter(task -> TaskStatus.DONE.equals(task.getStatus()))
+                .count();
+    }
+
+    public long getInProgressTasksCount() {
+        return tasks.stream()
+                .filter(task -> TaskStatus.IN_PROGRESS.equals(task.getStatus()))
+                .count();
+    }
+
+    public long getProgress() {
+        return (long) (getCompletedTasksCount() * 100 / tasks.size());
+    }
+
+    public long getDaysLeft() {
+        return ChronoUnit.DAYS.between(LocalDate.now(), dueDate);
+    }
+
+    public long getHoursLeft() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime due = dueDate.atTime(23, 59, 59);
+        return ChronoUnit.HOURS.between(now, due) - getDaysLeft() * 24;
+    }
+
+    public long getMinutesLeft() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime due = dueDate.atTime(23, 59, 59);
+        return ChronoUnit.MINUTES.between(now, due) - getDaysLeft() * 24 * 60 - getHoursLeft() * 60;
+    }
+
+    public long getNotStartedTasksCount() {
+        return tasks.stream()
+                .filter(task -> TaskStatus.TODO.equals(task.getStatus()))
+                .count();
+    }
+
+    public long getOnHoldTasksCount() {
+        return tasks.stream()
+                .filter(task -> TaskStatus.REVIEW.equals(task.getStatus()))
+                .count();
+    }
+
+    public void addTask(Task task) {
+        tasks.add(task);
+        task.setProject(this);
+    }
+
+    public void removeTask(Task task) {
+        tasks.remove(task);
+        task.setProject(null);
+    }
+
 }

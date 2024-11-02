@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{base :: layout(~{::title}, ~{::section}, ~{::additionalCss})}">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{base :: layout(~{::title}, ~{::content}, ~{::additionalCss}, ~{::additionalJs})}">
 <head>
     <title>Tạo dự án mới - Task Management System</title>
     <additionalCss>
@@ -9,13 +9,13 @@
     </additionalCss>
 </head>
 <body>  
-    <section class="container-fluid py-5">
+    <content class="container-fluid py-5">
         <h1 class="form-title text-center mb-5">Tạo dự án mới</h1>
         <div class="row justify-content-center">
             <!-- Phần thông tin dự án -->
             <div class="col-md-6 mb-4">
                 <div class="form-container">
-                    <form id="projectForm" th:action="@{/projects/create}" method="post" class="needs-validation" novalidate>
+                    <form id="projectForm" th:action="@{/projects/create}" method="post" enctype="application/x-www-form-urlencoded" class="needs-validation" novalidate>
                         <div class="form-group">
                             <label for="name" class="form-label">Tên dự án:</label>
                             <input type="text" class="form-control" id="name" name="name" required placeholder="Nhập tên dự án">
@@ -194,8 +194,9 @@
                 </div>
             </div>
         </div>
-    </section>
-
-    <script th:src="@{/js/projects/project-create.js}"></script>
+    </content>
+    <additionalJs>
+        <script th:src="@{/js/projects/project-create.js}"></script>
+    </additionalJs>
 </body>
 </html>

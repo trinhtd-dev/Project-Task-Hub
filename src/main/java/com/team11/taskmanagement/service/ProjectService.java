@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -14,8 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team11.taskmanagement.dto.ProjectDTO;
+import com.team11.taskmanagement.dto.task.TaskDTO;
 import com.team11.taskmanagement.model.Project;
 import com.team11.taskmanagement.model.ProjectPriority;
 import com.team11.taskmanagement.model.ProjectStatus;
@@ -25,10 +27,14 @@ import com.team11.taskmanagement.model.User;
 import com.team11.taskmanagement.repository.ProjectRepository;
 import com.team11.taskmanagement.repository.TaskRepository;
 import com.team11.taskmanagement.repository.UserRepository;
+import com.team11.taskmanagement.model.TaskStatus;
 
 
 @Service
+@Transactional(readOnly = true)
 public class ProjectService {
+
+    private static final Logger log = LoggerFactory.getLogger(ProjectService.class);
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -40,16 +46,25 @@ public class ProjectService {
     private TaskRepository taskRepository;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private TaskService taskService;
 
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }
 
     public Optional<Project> getProjectById(Long id) {
-        return projectRepository.findById(id);
+        Optional<Project> projectOpt = projectRepository.findById(id);
+        projectOpt.ifPresent(project -> {
+            log.debug("Project found: {}", project.getId());
+            log.debug("Tasks count: {}", project.getTasks().size());
+            project.getTasks().forEach(task -> {
+                log.debug("Task: {}, Assignee: {}", 
+                    task.getName(), 
+                    task.getAssignees() != null ? task.getAssignees().size() : "Unassigned");
+            });
+        });
+        return projectOpt;
     }
-
 
 
     @Transactional
@@ -81,20 +96,21 @@ public class ProjectService {
 
         project = projectRepository.save(project);
 
-        for (ProjectDTO.TaskDTO taskDTO : projectDTO.getTasks()) {
+        for (TaskDTO taskDTO : projectDTO.getTasks()) {
             Task task = new Task();
             task.setName(taskDTO.getName());
             task.setDescription(taskDTO.getDescription());
-            task.setDueDate(taskDTO.getDueDate().atStartOfDay());
+            task.setDueDate(taskDTO.getDueDate());
             task.setProject(project);
+            task.setStatus(TaskStatus.TODO);
             task.setCreatedBy(user);
             task.setCreatedAt(LocalDateTime.now());
             task.setUpdatedAt(LocalDateTime.now());
             task.setIsDeleted(false);
-            if (!taskDTO.getAssigneeIds().isEmpty()) {
-                User assignee = userRepository.findById(taskDTO.getAssigneeIds().get(0))
-                    .orElseThrow(() -> new RuntimeException("Assignee not found"));
-                task.setAssignee(assignee);
+            
+            if (taskDTO.getAssigneeIds() != null && !taskDTO.getAssigneeIds().isEmpty()) {
+                Set<User> assignees = new HashSet<>(userRepository.findAllById(taskDTO.getAssigneeIds()));
+                task.setAssignees(assignees);
             }
             taskRepository.save(task);
         }
@@ -128,9 +144,9 @@ public class ProjectService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
         // Xử lý các task đã gán cho thành viên
-        List<Task> userTasks = taskRepository.findByProjectAndAssignee(project, user);
+        List<Task> userTasks = taskRepository.findByProjectAndAssigneesContaining(project, user);
         for (Task task : userTasks) {
-            task.setAssignee(null); // Hoặc gán cho người khác tùy theo logic của bạn
+            task.getAssignees().remove(user); // Xóa user khỏi danh sách assignees
         }
         taskRepository.saveAll(userTasks);
         

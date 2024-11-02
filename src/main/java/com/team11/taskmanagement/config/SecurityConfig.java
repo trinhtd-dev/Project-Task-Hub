@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.team11.taskmanagement.model.User;
 
 @Configuration
 @EnableWebSecurity
@@ -21,8 +23,17 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        return new CustomUserDetailsService(userRepository, passwordEncoder);
+    public UserDetailsService userDetailsService(UserRepository userRepository) {
+        return username -> {
+            User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                
+            return org.springframework.security.core.userdetails.User
+                .withUsername(user.getUsername())
+                .password(user.getPassword())
+                .roles("USER")
+                .build();
+        };
     }
 
     @Bean
