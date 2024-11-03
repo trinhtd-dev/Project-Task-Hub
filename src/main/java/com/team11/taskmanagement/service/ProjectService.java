@@ -30,7 +30,7 @@ import com.team11.taskmanagement.repository.UserRepository;
 import com.team11.taskmanagement.model.TaskStatus;
 
 
-@Service
+@Service 
 @Transactional(readOnly = true)
 public class ProjectService {
 

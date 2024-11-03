@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function() {
     deleteTaskBtns.forEach(btn => {
         btn.addEventListener('click', async function() {
             const taskId = btn.getAttribute('data-task-id');
-            const confirmed = await showModalConfirmDelete('công việc');
+            const confirmed = await confirmDeleteModal('công việc');
             
             if (confirmed) {
                 try {
@@ -138,6 +138,27 @@ document.addEventListener("DOMContentLoaded", function() {
                 } catch (error) {
                     console.error('Error:', error);
                     alert('Có lỗi xảy ra khi xóa công việc');
+                }
+            }
+        });
+    });
+
+    // Delete announcement
+    const deleteAnnouncementBtns = document.querySelectorAll('.announcement-btn-delete');
+    deleteAnnouncementBtns.forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const announcementId = btn.getAttribute('data-announcement-id');
+            const confirmed = await confirmDeleteModal('thông báo');
+            if(confirmed) {
+                try {
+                    const response = await fetch(`/api/announcements/${announcementId}`, {
+                        method: 'DELETE',
+                    });
+                    const announcementDiv = document.querySelector(`[divAnnouncement="${announcementId}"]`);
+                    announcementDiv.remove();
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi xóa thông báo');
                 }
             }
         });

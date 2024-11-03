@@ -122,8 +122,16 @@ public class Project {
                 .count();
     }
 
-    public long getProgress() {
-        return (long) (getCompletedTasksCount() * 100 / tasks.size());
+    public double getProgress() {
+        if (tasks == null || tasks.isEmpty()) {
+            return 0.0; // Return 0% progress if there are no tasks
+        }
+        
+        long completedTasks = tasks.stream()
+            .filter(task -> TaskStatus.DONE.equals(task.getStatus()))
+            .count();
+            
+        return ((double) completedTasks / tasks.size()) * 100;
     }
 
     public long getDaysLeft() {

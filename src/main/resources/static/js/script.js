@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function showModalConfirmDelete(itemName) {
+function confirmDeleteModal(itemName) {
     return new Promise((resolve) => {
         // Create modal container div
         const modalContainer = document.createElement('div');

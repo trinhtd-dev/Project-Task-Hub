@@ -99,7 +99,7 @@
                                      th:style="'width: ' + ${project.getProgress()} + '%'"
                                      th:aria-valuenow="${project.getProgress()}" 
                                      aria-valuemin="0" 
-                                     aria-valuemax="100">
+                                     aria-valuemax="100"> 
                                 </div>
                             </div>
                         </div>
@@ -478,7 +478,8 @@
                         
                         <!-- Grid layout cho thông báo -->
                         <div class="announcement-grid">
-                            <div th:each="announcement : ${announcements}" class="announcement-item">
+                            <div th:each="announcement : ${announcements}" class="announcement-item" 
+                                 th:attr="divAnnouncement=${announcement.id}">
                                 <div class="announcement-header d-flex justify-content-between align-items-center">
                                     <div class="d-flex align-items-center">
                                         <img th:src="${announcement.createdBy.avatarUrl}" 
@@ -498,14 +499,10 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
                                             <li>
-                                                <form th:action="@{/projects/{projectId}/announcements/{id}(projectId=${project.id},id=${announcement.id})}"
-                                                      method="POST"
-                                                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa thông báo này?');">
-                                                    <input type="hidden" name="_method" value="DELETE">
-                                                    <button type="submit" class="dropdown-item text-danger">
-                                                        <i class="fas fa-trash-alt me-2"></i>Xóa
-                                                    </button>
-                                                </form>
+                                                <button class="btn announcement-btn-delete text-danger align-items-center" 
+                                                        th:data-announcement-id="${announcement.id}">
+                                                    <i class="fas fa-trash-alt me-1"></i>Xóa
+                                                </button>
                                             </li>
                                         </ul>
                                     </div>

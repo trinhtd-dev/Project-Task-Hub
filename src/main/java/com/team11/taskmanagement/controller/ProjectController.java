@@ -85,9 +85,7 @@ public class ProjectController {
             Project project = projectService.getProjectById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
             
-            
             log.debug("Project found: {}", project.getId());
-            System.out.println(project.getTasks().iterator().next().getStatus());
             
             List<ProjectAnnouncement> announcements = 
                 announcementService.getAnnouncementsByProject(project);
@@ -101,6 +99,7 @@ public class ProjectController {
             return "error";
         }
     }
+
     @PostMapping("/{id}/announcements")
         public String createAnnouncement(@PathVariable Long id,
                                     @RequestParam String content,
