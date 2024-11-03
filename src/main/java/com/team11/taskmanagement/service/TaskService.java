@@ -81,4 +81,10 @@ public class TaskService {
         List<Task> tasks = taskRepository.findAll();
         return taskMapper.toResponseDTOs(tasks);
     }
+
+    public void deleteTask(Long id) {
+        Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+        taskRepository.delete(task);
+    }
 }

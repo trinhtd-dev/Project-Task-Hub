@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // Edit task
-    const editTaskBtns = document.querySelectorAll('[data-task-id]');
+    const editTaskBtns = document.querySelectorAll('.task-btn-edit');
     editTaskBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             const taskId = btn.getAttribute('data-task-id');
@@ -113,6 +113,33 @@ document.addEventListener("DOMContentLoaded", function() {
                     window.location.reload();
                 });
             });
+        });
+    });
+
+
+
+    // Delete task
+    const deleteTaskBtns = document.querySelectorAll('.task-btn-delete');
+    deleteTaskBtns.forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const taskId = btn.getAttribute('data-task-id');
+            const confirmed = await showModalConfirmDelete('công việc');
+            
+            if (confirmed) {
+                try {
+                    const response = await fetch(`/api/tasks/${taskId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const divTask = document.querySelector(`[divTask="${taskId}"]`);
+                    divTask.remove();
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi xóa công việc');
+                }
+            }
         });
     });
 });

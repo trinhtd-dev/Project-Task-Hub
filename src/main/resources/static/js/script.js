@@ -27,3 +27,65 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function showModalConfirmDelete(itemName) {
+    return new Promise((resolve) => {
+        // Create modal container div
+        const modalContainer = document.createElement('div');
+        modalContainer.classList.add('modal', 'fade');
+        modalContainer.setAttribute('tabindex', '-1');
+        modalContainer.setAttribute('role', 'dialog');
+        modalContainer.setAttribute('aria-hidden', 'true');
+
+        // Create modal dialog div
+        const modalDialog = document.createElement('div'); 
+        modalDialog.classList.add('modal-dialog', 'modal-dialog-centered');
+
+        // Create modal content div
+        const modalContent = document.createElement('div');
+        modalContent.classList.add('modal-content');
+
+        modalContent.innerHTML = `
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa <span class="fw-bold">${itemName}</span> không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger">Xóa</button>
+            </div>
+        `;
+
+        // Assemble modal structure
+        modalDialog.appendChild(modalContent);
+        modalContainer.appendChild(modalDialog);
+        document.body.appendChild(modalContainer);
+
+        // Initialize and show modal
+        const modalConfirmDelete = new bootstrap.Modal(modalContainer);
+        modalConfirmDelete.show();
+
+        // Clean up modal when hidden
+        modalContainer.addEventListener('hidden.bs.modal', function() {
+            document.body.removeChild(modalContainer);
+            resolve(false); // Resolve with false when modal is dismissed
+        });
+
+        // Handle delete button click
+        const deleteButton = modalContent.querySelector('.btn-danger');
+        deleteButton.addEventListener('click', function() {
+            modalConfirmDelete.hide();
+            resolve(true); // Resolve with true when delete is confirmed
+        });
+
+        // Handle cancel button click
+        const cancelButton = modalContent.querySelector('.btn-secondary');
+        cancelButton.addEventListener('click', function() {
+            modalConfirmDelete.hide();
+            resolve(false); // Resolve with false when cancelled
+        });
+    });
+}
