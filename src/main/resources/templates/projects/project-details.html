@@ -352,6 +352,81 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal sửa task -->
+        <div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editTaskModalLabel">Chỉnh sửa công việc</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editTaskForm">
+                            <input type="hidden" id="editTaskId" name="id">
+                            
+                            <div class="mb-3">
+                                <label for="editTaskName" class="form-label">Tên công việc:</label>
+                                <input type="text" class="form-control" id="editTaskName" name="name" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editTaskDescription" class="form-label">Mô tả:</label>
+                                <textarea class="form-control" id="editTaskDescription" name="description" rows="3"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editTaskDueDate" class="form-label">Ngày đến hạn:</label>
+                                <input type="date" class="form-control" id="editTaskDueDate" name="dueDate">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editTaskStatus" class="form-label">Trạng thái:</label>
+                                <select class="form-select" id="editTaskStatus" name="status">
+                                    <option value="TODO">Chưa bắt đầu</option>
+                                    <option value="IN_PROGRESS">Đang thực hiện</option>
+                                    <option value="REVIEW">Đang xem xét</option>
+                                    <option value="DONE">Hoàn thành</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Người thực hiện:</label>
+                                <div class="assignee-selection">
+                                    <input type="text" class="form-control mb-2" id="editAssigneeSearch" placeholder="Tìm kiếm thành viên...">
+                                    <div class="assignee-list">
+                                        <div th:each="member : ${project.members}" class="assignee-item mb-2">
+                                            <div class="form-check d-flex align-items-center">
+                                                <input class="form-check-input me-2" type="checkbox" 
+                                                       th:value="${member.id}" 
+                                                       name="assigneeIds"
+                                                       th:id="'edit-assignee-' + ${member.id}">
+                                                <label class="form-check-label d-flex align-items-center" 
+                                                       th:for="'edit-assignee-' + ${member.id}">
+                                                    <img th:src="${member.avatarUrl}" alt="Avatar" 
+                                                         class="rounded-circle me-2" 
+                                                         style="width: 32px; height: 32px;">
+                                                    <div>
+                                                        <span th:text="${member.fullName}" class="fw-bold"></span>
+                                                        <br>
+                                                        <small th:text="${member.email}" class="text-muted"></small>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="button" class="btn btn-primary" id="updateTaskBtn">Cập nhật</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal thêm thông báo -->
         <div class="modal fade" id="addAnnouncementModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">

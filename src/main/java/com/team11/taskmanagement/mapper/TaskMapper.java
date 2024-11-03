@@ -7,8 +7,9 @@ import com.team11.taskmanagement.dto.task.TaskCreateDTO;
 import com.team11.taskmanagement.dto.task.TaskResponseDTO;
 import com.team11.taskmanagement.dto.user.UserSummaryDTO;
 import com.team11.taskmanagement.model.User;
+import com.team11.taskmanagement.dto.task.TaskUpdateDTO;
 import java.util.List;
-
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface TaskMapper {
@@ -31,9 +32,20 @@ public interface TaskMapper {
     @Mapping(target = "assignees", source = "assignees")
     TaskResponseDTO toResponseDTO(Task task);
     
+
     // List mapping
     List<TaskResponseDTO> toResponseDTOs(List<Task> tasks);
     
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "isDeleted", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "deletedBy", ignore = true)
+    @Mapping(target = "assignees", ignore = true)
+    void updateEntity(TaskUpdateDTO updateDTO, @MappingTarget Task task);
+
     // Custom mapping methods
     default UserSummaryDTO toUserSummaryDTO(User user) {
         if (user == null) return null;

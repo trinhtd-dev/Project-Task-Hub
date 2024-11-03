@@ -1,21 +1,23 @@
 package com.team11.taskmanagement.service;
 
-import java.util.List;
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.team11.taskmanagement.dto.task.TaskCreateDTO;
 import com.team11.taskmanagement.dto.task.TaskResponseDTO;
-import com.team11.taskmanagement.mapper.TaskMapper;
-import com.team11.taskmanagement.model.Task;
-import com.team11.taskmanagement.repository.TaskRepository;
-import com.team11.taskmanagement.model.User;
-import com.team11.taskmanagement.model.Project;
-import com.team11.taskmanagement.repository.ProjectRepository;
+import com.team11.taskmanagement.dto.task.TaskUpdateDTO;
 import com.team11.taskmanagement.exception.ResourceNotFoundException;
+import com.team11.taskmanagement.mapper.TaskMapper;
+import com.team11.taskmanagement.model.Project;
+import com.team11.taskmanagement.model.Task;
+import com.team11.taskmanagement.model.User;
+import com.team11.taskmanagement.repository.ProjectRepository;
+import com.team11.taskmanagement.repository.TaskRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -51,6 +53,28 @@ public class TaskService {
         Task savedTask = taskRepository.save(task);
         
         return taskMapper.toResponseDTO(savedTask);
+    }
+    
+    public TaskResponseDTO getTaskById(Long id) {
+        Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+        return taskMapper.toResponseDTO(task);
+    }
+    
+    public TaskResponseDTO updateTask(Long id, TaskUpdateDTO updateDTO) {
+        Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+        
+        taskMapper.updateEntity(updateDTO, task);
+        task.setUpdatedAt(LocalDateTime.now());
+        
+        // Update assignees if provided
+        if (updateDTO.getAssigneeIds() != null) {
+            Set<User> assignees = new HashSet<>(userService.getUsersByIds(updateDTO.getAssigneeIds()));
+            task.setAssignees(assignees);
+        }
+        
+        return taskMapper.toResponseDTO(taskRepository.save(task));
     }
     
     public List<TaskResponseDTO> getAllTasks() {

@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
     const projectId = document.querySelector('[data-project-id]').getAttribute('data-project-id');
-    console.log(projectId);
 
     // Countdown timer
     function updateCountdown() {
@@ -66,4 +65,54 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
+    // Edit task
+    const editTaskBtns = document.querySelectorAll('[data-task-id]');
+    editTaskBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const taskId = btn.getAttribute('data-task-id');
+            const modal = new bootstrap.Modal(document.getElementById('editTaskModal'));
+            const editForm = document.getElementById('editTaskForm');
+
+            fetch(`/api/tasks/${taskId}`)
+                .then(response => response.json())
+                .then(data => {
+                    editForm.elements.name.value = data.name;
+                    editForm.elements.description.value = data.description;
+                    editForm.elements.dueDate.value = data.dueDate;
+                    editForm.elements.status.value = data.status;
+
+                    data.assignees.forEach(assignee => {
+                        const checkbox = editForm.querySelector(`input[name="assigneeIds"][value="${assignee.id}"]`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+                    });
+                    modal.show();
+                });
+            const updateTaskBtn = document.querySelector('#updateTaskBtn');
+            updateTaskBtn.addEventListener('click', function() {
+                const assigneeIds = Array.from(editForm.querySelectorAll('input[name="assigneeIds"]:checked'))
+                    .map(input => input.value);
+                const taskData = {
+                    name: editForm.elements.name.value,
+                    description: editForm.elements.description.value,
+                    dueDate: editForm.elements.dueDate.value,
+                    status: editForm.elements.status.value,
+                    assigneeIds: assigneeIds
+                }
+
+                fetch(`/api/tasks/${taskId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(taskData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    window.location.reload();
+                });
+            });
+        });
+    });
 });
