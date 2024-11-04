@@ -2,8 +2,8 @@ package com.team11.taskmanagement.controller;
 
 import java.util.List;
 
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,14 +18,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.team11.taskmanagement.dto.ProjectDTO;
 import com.team11.taskmanagement.exception.ResourceNotFoundException;
 import com.team11.taskmanagement.model.Project;
-import com.team11.taskmanagement.model.User;
-import com.team11.taskmanagement.service.ProjectService;
-import com.team11.taskmanagement.service.UserService;
-import com.team11.taskmanagement.service.ProjectAnnouncementService;
 import com.team11.taskmanagement.model.ProjectAnnouncement;
+import com.team11.taskmanagement.model.Task;
+import com.team11.taskmanagement.model.User;
+import com.team11.taskmanagement.service.ProjectAnnouncementService;
+import com.team11.taskmanagement.service.ProjectService;
+import com.team11.taskmanagement.service.TaskService;
+import com.team11.taskmanagement.service.UserService;
 
-import lombok.extern.slf4j.Slf4j;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping("/projects")
@@ -34,14 +36,17 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final UserService userService;
+    private final TaskService taskService;
     private final ProjectAnnouncementService announcementService;
     
-    public ProjectController(ProjectService projectService, UserService userService, ProjectAnnouncementService announcementService) {
+    public ProjectController(ProjectService projectService, UserService userService, TaskService taskService, ProjectAnnouncementService announcementService) {
         this.projectService = projectService;
         this.userService = userService;
+        this.taskService = taskService;
         this.announcementService = announcementService;
     }
 
+    // Show list projects
     @GetMapping
     public String listProjects(Model model) {
         log.info("Show list projects");
@@ -51,6 +56,7 @@ public class ProjectController {
         return "projects/index"; 
     }
 
+    // Show create project form
     @GetMapping("/create")
     public String showCreateProjectForm(Model model) {
         log.info("Show create project form");
@@ -59,6 +65,7 @@ public class ProjectController {
         return "projects/project-create";
     }
 
+    // Process create new project
     @PostMapping("/create")
     public String createProject(@Valid @ModelAttribute("project") ProjectDTO projectDTO, 
                                 BindingResult result, 
@@ -78,6 +85,7 @@ public class ProjectController {
         }
     }
 
+    // Show project details
     @GetMapping("/{id}")
     public String showProjectDetails(@PathVariable Long id, Model model) {
         log.info("Show project details with ID: {}", id);
@@ -85,12 +93,16 @@ public class ProjectController {
             Project project = projectService.getProjectById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
             
-            log.debug("Project found: {}", project.getId());
+            List<Task> tasks = taskService.getTasksByProjectId(id);
             
+            List<User> members = userService.getUsersByProjectId(id);
+
             List<ProjectAnnouncement> announcements = 
-                announcementService.getAnnouncementsByProject(project);
+            announcementService.getAnnouncementsByProject(project);
             
             model.addAttribute("project", project);
+            model.addAttribute("tasks", tasks);
+            model.addAttribute("members", members);
             model.addAttribute("announcements", announcements);
             return "projects/project-details";
         } catch (ResourceNotFoundException e) {
@@ -100,6 +112,7 @@ public class ProjectController {
         }
     }
 
+    // Process create announcement
     @PostMapping("/{id}/announcements")
         public String createAnnouncement(@PathVariable Long id,
                                     @RequestParam String content,
@@ -122,6 +135,7 @@ public class ProjectController {
             return "redirect:/projects/" + id;
         }
     
+    // Show trash project
     @GetMapping("/trash")
     public String showTrash(Model model) {
         log.info("Show trash project");

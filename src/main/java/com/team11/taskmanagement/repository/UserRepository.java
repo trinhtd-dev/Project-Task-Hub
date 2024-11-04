@@ -1,5 +1,6 @@
 package com.team11.taskmanagement.repository;
 
+import java.util.List;
 import java.util.Optional;
 import com.team11.taskmanagement.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.projects WHERE u.username = :username")
     Optional<User> findByUsernameWithProjects(@Param("username") String username);
+
+    List<User> findByProjects_Id(Long id);
 }

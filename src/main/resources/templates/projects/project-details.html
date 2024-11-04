@@ -65,7 +65,7 @@
                         <div class="project-members mt-4">
                             <h5 class="section-title"><i class="fas fa-users me-2"></i>Thành viên dự án</h5>
                             <div class="members-grid">
-                                <div th:each="member : ${project.members}" class="member-card">
+                                <div th:each="member : ${members}" class="member-card">
                                     <img th:src="${member.avatarUrl}" th:alt="${member.fullName}" class="member-avatar">
                                     <div class="member-info">
                                         <p class="member-name" th:text="${member.fullName}">Nguyễn Văn A</p>
@@ -110,7 +110,7 @@
                                 <div class="stats-icon total">
                                     <i class="fas fa-tasks"></i>
                                 </div>
-                                <div class="stats-value" th:text="${project.tasks.size()}">20</div>
+                                <div class="stats-value" th:text="${project.getTasksCount()}">20</div>
                                 <p class="stats-label">Tổng số task</p>
                             </div>
                             
@@ -187,7 +187,7 @@
                         
                         <!-- Task list -->
                         <div class="task-list">
-                            <div th:each="task : ${project.tasks}" class="task-item" th:attr="divTask=${task.id}">
+                            <div th:each="task : ${tasks}" class="task-item" th:attr="divTask=${task.id}">
                                 <div class="task-content">
                                     <!-- Left Column -->
                                     <div class="task-left-col">
@@ -321,7 +321,7 @@
                                 <div class="assignee-selection">
                                     <input type="text" class="form-control mb-2" id="assigneeSearch" placeholder="Tìm kiếm thành viên...">
                                     <div class="assignee-list">
-                                        <div th:each="member : ${project.members}" class="assignee-item mb-2">
+                                        <div th:each="member : ${members}" class="assignee-item mb-2">
                                             <div class="form-check d-flex align-items-center">
                                                 <input class="form-check-input me-2" type="checkbox" 
                                                        th:value="${member.id}" 
@@ -395,7 +395,7 @@
                                 <div class="assignee-selection">
                                     <input type="text" class="form-control mb-2" id="editAssigneeSearch" placeholder="Tìm kiếm thành viên...">
                                     <div class="assignee-list">
-                                        <div th:each="member : ${project.members}" class="assignee-item mb-2">
+                                        <div th:each="member : ${members}" class="assignee-item mb-2">
                                             <div class="form-check d-flex align-items-center">
                                                 <input class="form-check-input me-2" type="checkbox" 
                                                        th:value="${member.id}" 

@@ -31,6 +31,26 @@ public class TaskService {
     private final UserService userService;
     private final ProjectRepository projectRepository;
     
+// Get task
+    public TaskResponseDTO getTaskById(Long id) {
+        Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+        return taskMapper.toResponseDTO(task);
+    }
+
+// Get tasks by project id
+    public List<Task> getTasksByProjectId(Long projectId) {
+        return taskRepository.findByProjectId(projectId);
+    }
+
+// Get all tasks
+    public List<TaskResponseDTO> getAllTasks() {
+        List<Task> tasks = taskRepository.findAll();
+        return taskMapper.toResponseDTOs(tasks);
+    }
+
+    
+// Create task
     public TaskResponseDTO createTask(Long projectId, TaskCreateDTO createDTO) {
         Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
@@ -55,12 +75,7 @@ public class TaskService {
         return taskMapper.toResponseDTO(savedTask);
     }
     
-    public TaskResponseDTO getTaskById(Long id) {
-        Task task = taskRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
-        return taskMapper.toResponseDTO(task);
-    }
-    
+// Update task
     public TaskResponseDTO updateTask(Long id, TaskUpdateDTO updateDTO) {
         Task task = taskRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
@@ -77,11 +92,7 @@ public class TaskService {
         return taskMapper.toResponseDTO(taskRepository.save(task));
     }
     
-    public List<TaskResponseDTO> getAllTasks() {
-        List<Task> tasks = taskRepository.findAll();
-        return taskMapper.toResponseDTOs(tasks);
-    }
-
+// Delete task
     public void deleteTask(Long id) {
         Task task = taskRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Task not found"));

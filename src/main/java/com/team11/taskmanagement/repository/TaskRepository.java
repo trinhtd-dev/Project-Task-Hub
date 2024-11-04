@@ -16,4 +16,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     
     @Query("SELECT t FROM Task t WHERE t.dueDate < CURRENT_DATE AND t.status != 'COMPLETED'")
     List<Task> findOverdueTasks();
+
+    List<Task> findByProjectId(Long projectId);
 }

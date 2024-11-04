@@ -22,34 +22,27 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
+    // Get user by id
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
+    // Get users by ids
     public List<User> getUsersByIds(List<Long> ids) {
         return userRepository.findAllById(ids);
     }
 
-    public User createUser(User user) {
-        return userRepository.save(user);
+    // Get users by project id
+    public List<User> getUsersByProjectId(Long projectId) {
+        return userRepository.findByProjects_Id(projectId);
     }
 
-    public User updateUser(User user) {
-        return userRepository.save(user);
-    }
-
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
-    }
-
+    // Get user by username
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
+    // Get current user
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -58,5 +51,10 @@ public class UserService {
         
         return userRepository.findByUsername(authentication.getName())
             .orElseThrow(() -> new UnauthorizedException("User not found"));
+    }
+
+    // Get all users
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }

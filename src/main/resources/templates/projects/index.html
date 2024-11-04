@@ -16,7 +16,7 @@
             </a>
         </div>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            <div th:each="project : ${projects}" class="col">
+            <div th:each="project : ${projects}" class="col" th:attr="div-project=${project.id}">
                 <div class="card project-card h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
@@ -29,7 +29,7 @@
                                     <li><a class="dropdown-item" th:href="@{/projects/{id}(id=${project.id})}"><i class="fas fa-info-circle me-2"></i>Xem chi tiết</a></li>
                                     <li><a class="dropdown-item" th:href="@{/projects/{id}/edit(id=${project.id})}"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="#" th:data-project-id="${project.id}" onclick="confirmDelete(this.getAttribute('data-project-id'))"><i class="fas fa-trash-alt me-2"></i>Xóa</a></li>
+                                    <li><a class="dropdown-item text-danger" th:attr="delete-button=${project.id}"><i class="fas fa-trash-alt me-2"></i>Xóa</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -54,7 +54,7 @@
                             <div class="d-flex justify-content-start">
                                 <div class="d-flex align-items-center me-3">
                                     <i class="fas fa-comment-alt me-1 text-muted"></i>
-                                    <small class="text-muted">3</small>
+                                    <small class="text-muted" th:text="${project.getAnnouncementsCount()}">3</small>
                                 </div>
                                 <div class="d-flex align-items-center me-3">
                                     <i class="fas fa-paperclip me-1 text-muted"></i>
@@ -63,7 +63,7 @@
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-tasks me-1 text-muted"></i>
                                     <small class="text-muted" 
-                                           th:text="${project.getCompletedTasksCount() + '/' + project.getTasks().size()}">0/0</small>
+                                           th:text="${project.getCompletedTasksCount() + '/' + project.getTasksCount()}">0/0</small>
                                 </div>
                             </div>
                         </div>
@@ -76,17 +76,17 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-users me-2 text-muted"></i>
-                                <small class="text-muted" th:text="${project.members.size()} + ' thành viên'">5 thành viên</small>
+                                <small class="text-muted" th:text="${project.getMembers().size()} + ' thành viên'">5 thành viên</small>
                             </div>
                             <div class="member-avatars">
-                                <img th:each="member, iterStat : ${project.members}" 
+                                <img th:each="member, iterStat : ${project.getMembers()}" 
                                      th:if="${iterStat.index < 5}"
                                      th:src="${member.avatarUrl}" 
                                      th:alt="${member.fullName}"
                                      class="member-avatar"
                                      th:title="${member.fullName}">
-                                <span th:if="${project.members.size() > 5}" class="more-members">
-                                    +<span th:text="${project.members.size() - 5}"></span>
+                                <span th:if="${project.getMembers().size() > 5}" class="more-members">
+                                    +<span th:text="${project.getMembers().size() - 5}"></span>
                                 </span>
                             </div>
                         </div>

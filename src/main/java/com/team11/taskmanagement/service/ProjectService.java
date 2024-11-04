@@ -1,6 +1,7 @@
 package com.team11.taskmanagement.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,7 @@ import com.team11.taskmanagement.repository.ProjectRepository;
 import com.team11.taskmanagement.repository.TaskRepository;
 import com.team11.taskmanagement.repository.UserRepository;
 import com.team11.taskmanagement.model.TaskStatus;
+import com.team11.taskmanagement.repository.ProjectAnnouncementRepository;
 
 
 @Service 
@@ -48,22 +50,15 @@ public class ProjectService {
     @Autowired
     private TaskService taskService;
 
+    @Autowired
+    private ProjectAnnouncementRepository projectAnnouncementRepository;
+
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }
 
     public Optional<Project> getProjectById(Long id) {
-        Optional<Project> projectOpt = projectRepository.findById(id);
-        projectOpt.ifPresent(project -> {
-            log.debug("Project found: {}", project.getId());
-            log.debug("Tasks count: {}", project.getTasks().size());
-            project.getTasks().forEach(task -> {
-                log.debug("Task: {}, Assignee: {}", 
-                    task.getName(), 
-                    task.getAssignees() != null ? task.getAssignees().size() : "Unassigned");
-            });
-        });
-        return projectOpt;
+        return projectRepository.findById(id);
     }
 
 
@@ -95,7 +90,9 @@ public class ProjectService {
         project.setMembers(members);
 
         project = projectRepository.save(project);
-
+        if(projectDTO.getTasks() == null){
+            return project;
+        }
         for (TaskDTO taskDTO : projectDTO.getTasks()) {
             Task task = new Task();
             task.setName(taskDTO.getName());
@@ -122,8 +119,35 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
+    @Transactional
     public void deleteProject(Long id) {
-        projectRepository.deleteById(id);
+        try {
+            Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+            
+            log.info("Deleting project with ID: {}", id);
+            
+            // First delete all announcements
+            projectAnnouncementRepository.deleteAllByProject(project);
+            
+            // Then delete all tasks
+            for (Task task : new ArrayList<>(project.getTasks())) {
+                task.setAssignees(new HashSet<>()); // Clear assignees first
+                taskRepository.delete(task);
+            }
+            
+            // Clear members
+            project.getMembers().clear();
+            
+            // Finally delete the project
+            projectRepository.delete(project);
+            
+            log.info("Successfully deleted project with ID: {}", id);
+        } catch (Exception e) {
+            log.error("Error deleting project with ID: {}", id, e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
+                "Failed to delete project: " + e.getMessage());
+        }
     }
 
     @Transactional

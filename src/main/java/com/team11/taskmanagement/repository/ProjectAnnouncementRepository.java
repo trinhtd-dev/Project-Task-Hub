@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface ProjectAnnouncementRepository extends JpaRepository<ProjectAnnouncement, Long> {
     List<ProjectAnnouncement> findByProjectAndIsDeletedFalseOrderByCreatedAtDesc(Project project);
+    void deleteAllByProject(Project project);
 }
