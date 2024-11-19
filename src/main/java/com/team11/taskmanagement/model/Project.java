@@ -21,9 +21,15 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import java.time.temporal.ChronoUnit;
+import jakarta.persistence.Index;
+import jakarta.persistence.FetchType;
+
 @Data
 @Entity
-@Table(name = "projects")
+@Table(name = "projects", indexes = {
+    @Index(name = "idx_project_status", columnList = "status"),
+    @Index(name = "idx_project_created_by", columnList = "created_by")
+})
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,7 +72,12 @@ public class Project {
     @Column(name = "deleted_by")
     private Long deletedBy;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "project",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.EAGER
+    )
     private Set<Task> tasks = new HashSet<>();
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -80,9 +91,9 @@ public class Project {
     @Column(name = "tag")
     private TagProject tag;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name= "project_members",
+        name = "project_members",
         joinColumns = @JoinColumn(name = "project_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
@@ -178,5 +189,16 @@ public class Project {
     // Get announcements count
     public long getAnnouncementsCount() {
         return announcements.size();
+    }
+
+    // Add helper methods to maintain bidirectional relationship
+    public void addTask(Task task) {
+        tasks.add(task);
+        task.setProject(this);
+    }
+
+    public void removeTask(Task task) {
+        tasks.remove(task);
+        task.setProject(null);
     }
 }

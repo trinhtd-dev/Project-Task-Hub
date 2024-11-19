@@ -85,6 +85,17 @@ public class ProjectController {
         }
     }
 
+    // Show edit project form
+    @GetMapping("/{id}/edit")
+    public String showEditProjectForm(@PathVariable Long id, Model model) {
+        log.info("Show edit project form with ID: {}", id);
+        Project project = projectService.getProjectById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
+        model.addAttribute("project", project);
+        model.addAttribute("users", userService.getAllUsers());
+        return "projects/project-edit";
+    }
+
     // Show project details
     @GetMapping("/{id}")
     public String showProjectDetails(@PathVariable Long id, Model model) {

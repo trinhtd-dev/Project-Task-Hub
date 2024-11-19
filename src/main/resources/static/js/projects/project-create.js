@@ -1,12 +1,15 @@
+// Main event listener when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Member selection modal
+    // Initialize member selection modal components
     const memberSelectionBtn = document.getElementById('memberSelectionBtn');
     const memberModalElement = document.getElementById('memberModal');
     const saveMembersBtn = document.getElementById('saveMembersBtn');
 
+    // Handle member selection modal functionality
     if (memberSelectionBtn && memberModalElement && saveMembersBtn) {
         let memberModal;
 
+        // Show member selection modal when button clicked
         memberSelectionBtn.addEventListener('click', function() {
             if (!memberModal) {
                 memberModal = new bootstrap.Modal(memberModalElement);
@@ -14,11 +17,14 @@ document.addEventListener('DOMContentLoaded', function() {
             memberModal.show();
         });
 
+        // Save selected members and update UI
         saveMembersBtn.addEventListener('click', function() {
             const selectedMembers = document.querySelectorAll('#memberModal input[type="checkbox"]:checked');
             const memberList = document.getElementById('selectedMembers');
             if (memberList) {
+                // Clear existing member list
                 memberList.innerHTML = '';
+                // Add each selected member to the UI
                 selectedMembers.forEach(function(member) {
                     const li = document.createElement('li');
                     li.innerHTML = `
@@ -32,12 +38,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Task management
+    // Initialize task management components
     const addTaskBtn = document.getElementById('addTaskBtn');
     const taskModalElement = document.getElementById('taskModal');
     let taskModal;
-    let tasks = [];
+    let tasks = []; // Array to store all tasks
 
+    // Handle add task button click
     if (addTaskBtn && taskModalElement) {
         addTaskBtn.addEventListener('click', function() {
             if (!taskModal) {
@@ -48,26 +55,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Initialize task save functionality
     const saveTaskBtn = document.getElementById('saveTaskBtn');
     const taskList = document.getElementById('taskList');
 
+    // Handle save task button click
     if(saveTaskBtn) {
         saveTaskBtn.addEventListener('click', function() {
+            // Get task form values
             const taskName = document.getElementById('taskName').value;
             const taskDescription = document.getElementById('taskDescription').value;
             const taskDueDate = document.getElementById('taskDueDate').value;
             const taskAssignees = document.querySelectorAll('.task-assignee:checked');
+            // Map selected assignees to objects
             const assignees = Array.from(taskAssignees).map(checkbox => ({
                 id: checkbox.value,
                 name: checkbox.nextElementSibling.textContent,
                 avatarUrl: checkbox.nextElementSibling.querySelector('img').src
             }));
 
+            // Validate task name
             if (!taskName) {
                 alert('Vui lòng nhập tên task');
                 return;
             }
 
+            // Create task object
             const task = {
                 name: taskName,
                 description: taskDescription,
@@ -75,6 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 assignees: assignees
             };
         
+            // Handle edit or create new task
             const editIndex = saveTaskBtn.getAttribute('data-edit-index');
             if (editIndex !== null) {
                 tasks[editIndex] = task;
@@ -83,13 +97,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 tasks.push(task);
             }
 
+            // Update UI and close modal
             renderTaskList();
             taskModal.hide();
         });
     }
 
+    // Render task list in UI
     function renderTaskList() {
         taskList.innerHTML = '';
+        // Create HTML for each task
         tasks.forEach((task, index) => {
             const li = document.createElement('div');
             li.className = 'task-item';
@@ -120,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
             taskList.appendChild(li);
         });
 
-        // Add event listeners for edit and delete buttons
+        // Add event listeners for task actions
         document.querySelectorAll('.edit-task').forEach(btn => {
             btn.addEventListener('click', function() {
                 const index = this.getAttribute('data-index');
@@ -136,16 +153,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Handle task editing
     function editTask(index) {
         const task = tasks[index];
+        // Populate form with task data
         document.getElementById('taskName').value = task.name;
         document.getElementById('taskDescription').value = task.description;
         document.getElementById('taskDueDate').value = task.dueDate;
         
+        // Reset assignee checkboxes
         document.querySelectorAll('.task-assignee').forEach(checkbox => {
             checkbox.checked = false;
         });
         
+        // Check boxes for current assignees
         task.assignees.forEach(assignee => {
             const checkbox = document.querySelector(`.task-assignee[value="${assignee.id}"]`);
             if (checkbox) {
@@ -153,10 +174,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        // Set edit mode and show modal
         saveTaskBtn.setAttribute('data-edit-index', index);
         taskModal.show();
     }
 
+    // Handle task deletion
     function deleteTask(index) {
         if (confirm('Bạn có chắc chắn muốn xóa task này?')) {
             tasks.splice(index, 1);
@@ -164,19 +187,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Form submission
+    // Handle form submission
     const form = document.getElementById('projectForm');
     if (form) {
         form.addEventListener('submit', function(event) {
             event.preventDefault();
 
+            // Validate form
             if (!form.checkValidity()) {
                 event.stopPropagation();
                 form.classList.add('was-validated');
                 return;
             }
 
-            // Add member data to form
+            // Add selected member IDs to form
             const selectedMembers = document.querySelectorAll('#memberModal input[type="checkbox"]:checked');
             selectedMembers.forEach(function(member) {
                 const input = document.createElement('input');
@@ -188,24 +212,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Add task data to form
             tasks.forEach(function(task, index) {
+                // Add task name
                 const taskNameInput = document.createElement('input');
                 taskNameInput.type = 'hidden';
                 taskNameInput.name = `tasks[${index}].name`;
                 taskNameInput.value = task.name;
                 form.appendChild(taskNameInput);
 
+                // Add task description
                 const taskDescInput = document.createElement('input');
                 taskDescInput.type = 'hidden';
                 taskDescInput.name = `tasks[${index}].description`;
                 taskDescInput.value = task.description;
                 form.appendChild(taskDescInput);
 
+                // Add task due date
                 const taskDueDateInput = document.createElement('input');
                 taskDueDateInput.type = 'hidden';
                 taskDueDateInput.name = `tasks[${index}].dueDate`;
                 taskDueDateInput.value = task.dueDate;
                 form.appendChild(taskDueDateInput);
 
+                // Add task assignees
                 task.assignees.forEach(function(assignee, assigneeIndex) {
                     const assigneeInput = document.createElement('input');
                     assigneeInput.type = 'hidden';
@@ -215,8 +243,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
 
+            // Submit the form
             form.submit();
         });
     }
 });
-

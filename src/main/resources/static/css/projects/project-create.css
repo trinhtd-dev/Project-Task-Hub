@@ -111,6 +111,11 @@ body {
     color: #718096;
 }
 
+.task-status {
+    font-size: 0.75rem;
+    color: #718096;
+}
+
 .task-assignees {
     display: flex;
     align-items: center;

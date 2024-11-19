@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +18,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.team11.taskmanagement.exception.ResourceNotFoundException;
 
 import com.team11.taskmanagement.dto.ProjectDTO;
+import com.team11.taskmanagement.dto.project.ProjectUpdateDTO;
 import com.team11.taskmanagement.dto.task.TaskDTO;
+import com.team11.taskmanagement.dto.task.TaskCreateAndUpdateDTO;
 import com.team11.taskmanagement.model.Project;
 import com.team11.taskmanagement.model.ProjectPriority;
 import com.team11.taskmanagement.model.ProjectStatus;
@@ -30,6 +35,12 @@ import com.team11.taskmanagement.repository.TaskRepository;
 import com.team11.taskmanagement.repository.UserRepository;
 import com.team11.taskmanagement.model.TaskStatus;
 import com.team11.taskmanagement.repository.ProjectAnnouncementRepository;
+import com.team11.taskmanagement.mapper.TaskMapper;
+import com.team11.taskmanagement.service.UserService;
+import com.team11.taskmanagement.dto.project.ProjectResponseDTO;
+import com.team11.taskmanagement.mapper.ProjectMapper;
+
+
 
 
 @Service 
@@ -51,7 +62,12 @@ public class ProjectService {
     private TaskService taskService;
 
     @Autowired
+    private UserService userService;
+    @Autowired
     private ProjectAnnouncementRepository projectAnnouncementRepository;
+
+    @Autowired
+    private ProjectMapper projectMapper;
 
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
@@ -115,8 +131,48 @@ public class ProjectService {
         return project;
     }
 
-    public Project updateProject(Project project) {
-        return projectRepository.save(project);
+    @Transactional
+    public ProjectResponseDTO updateProject(Long id, ProjectUpdateDTO projectUpdateDTO) {
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+        User currentUser = userService.getCurrentUser();
+        Set<User> members = userRepository.findAllById(projectUpdateDTO.getMemberIds())
+            .stream()
+            .collect(Collectors.toSet());
+        // Update project using mapper
+        projectMapper.updateEntityFromDTO(projectUpdateDTO, project);
+        project.setMembers(members);
+        // Update tasks if provided
+        if (projectUpdateDTO.getTasks() != null) {
+            project.getTasks().clear();
+            final Project finalProject = project;
+            projectUpdateDTO.getTasks().forEach(taskDTO -> {
+                Task task = createNewTask(taskDTO, finalProject);
+                task.setCreatedBy(currentUser);
+                task.setCreatedAt(LocalDateTime.now());
+                finalProject.addTask(task);
+            });
+        }
+        project = projectRepository.save(project);
+        return projectMapper.toResponseDTO(project);
+    }
+
+
+    private Task createNewTask(TaskCreateAndUpdateDTO taskDTO, Project project) {
+        Task task = new Task();
+        task.setProject(project);
+        task.setName(taskDTO.getName());
+        task.setDescription(taskDTO.getDescription());
+        task.setDueDate(taskDTO.getDueDate());
+        task.setStatus(TaskStatus.valueOf(taskDTO.getStatus()));
+        
+        // Set assignees
+        Set<User> assignees = userRepository.findAllById(taskDTO.getAssigneeIds())
+            .stream()
+            .collect(Collectors.toSet());
+        task.setAssignees(assignees);
+        
+        return task;
     }
 
     @Transactional

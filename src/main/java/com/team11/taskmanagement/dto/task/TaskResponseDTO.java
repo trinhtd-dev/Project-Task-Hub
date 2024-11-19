@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.Data;
 import com.team11.taskmanagement.dto.user.UserSummaryDTO;
 import com.team11.taskmanagement.model.TaskStatus;
+
 @Data
 public class TaskResponseDTO {
     private Long id;

@@ -3,13 +3,18 @@ package com.team11.taskmanagement.dto.task;
 import java.time.LocalDate;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class TaskCreateDTO {
+@NoArgsConstructor
+@AllArgsConstructor
+public class TaskCreateAndUpdateDTO {
+    private Long id;
     private String name;
     private String description;
     private LocalDate dueDate;
+    private String status;
     private List<Long> assigneeIds;
 }
-
