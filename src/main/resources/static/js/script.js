@@ -1,4 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const toast = document.getElementById('toast');
+    if (toast) {
+        const bsToast = new bootstrap.Toast(toast, {
+            animation: true,
+            autohide: true,
+            delay: 5000  // Show error messages longer
+        });
+        bsToast.show();
+    }
+
     // Hàm dùng chung cho tìm kiếm user
     const userSearch = document.getElementById('userSearch');
     const userItems = document.querySelectorAll('.user-item');

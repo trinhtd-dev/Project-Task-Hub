@@ -135,9 +135,10 @@ document.addEventListener("DOMContentLoaded", function() {
                     });
                     const divTask = document.querySelector(`[divTask="${taskId}"]`);
                     divTask.remove();
+                    toast.show('success', 'Công việc đã được xóa thành công');
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi xóa công việc');
+                    toast.show('error', 'Có lỗi xảy ra khi xóa công việc');
                 }
             }
         });
@@ -156,9 +157,10 @@ document.addEventListener("DOMContentLoaded", function() {
                     });
                     const announcementDiv = document.querySelector(`[divAnnouncement="${announcementId}"]`);
                     announcementDiv.remove();
+                    toast.show('success', 'Thông báo đã được xóa thành công');
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi xóa thông báo');
+                    toast.show('error', 'Có lỗi xảy ra khi xóa thông báo');
                 }
             }
         });

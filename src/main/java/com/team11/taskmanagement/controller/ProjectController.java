@@ -76,11 +76,15 @@ public class ProjectController {
         }
         try {
             Project createdProject = projectService.createProject(projectDTO);
-            redirectAttributes.addFlashAttribute("successMessage", "Project created successfully");
+            redirectAttributes.addFlashAttribute("showToast", true);
+            redirectAttributes.addFlashAttribute("toastType", "success");
+            redirectAttributes.addFlashAttribute("toastMessage", "Project created successfully");
             return "redirect:/projects/" + createdProject.getId();
         } catch (IllegalArgumentException e) {
             log.error("Error when create project", e);
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute("showToast", true);
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            redirectAttributes.addFlashAttribute("toastMessage", e.getMessage());
             return "redirect:/projects/create";
         }
     }

@@ -299,12 +299,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (response.ok) {
                 window.location.href = `/projects/${projectId}`;
+                toast.show('success', 'Dự án đã được cập nhật thành công');
             } else {
                 const error = await response.json();
-                alert(error.message || 'An error occurred while saving the project');
+                toast.show('error', error.message || 'Có lỗi xảy ra khi cập nhật dự án');
             }
         } catch (error) {
             console.error('Error:', error);
+            toast.show('error', 'Có lỗi xảy ra khi cập nhật dự án');
         }
     });
 });
