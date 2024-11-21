@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import com.team11.taskmanagement.dto.task.TaskResponseDTO;
 import com.team11.taskmanagement.dto.task.TaskUpdateDTO;
+import com.team11.taskmanagement.dto.task.TaskStatusUpdateDTO;
 import com.team11.taskmanagement.service.TaskService;
-
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 @RestController
 public class TaskApiController {
     @Autowired
@@ -32,5 +33,11 @@ public class TaskApiController {
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Update task status
+    @PatchMapping("/api/tasks/{id}/status")
+    public ResponseEntity<TaskResponseDTO> updateTaskStatus(@PathVariable Long id, @RequestBody TaskStatusUpdateDTO data) {
+        return ResponseEntity.ok(taskService.updateTaskStatus(id, data.getStatus()));
     }
 }

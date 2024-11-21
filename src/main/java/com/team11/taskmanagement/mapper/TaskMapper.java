@@ -1,15 +1,18 @@
 package com.team11.taskmanagement.mapper;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import com.team11.taskmanagement.model.Task;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.team11.taskmanagement.dto.task.TaskCreateDTO;
 import com.team11.taskmanagement.dto.task.TaskResponseDTO;
 import com.team11.taskmanagement.dto.task.TaskUpdateDTO;
-import java.util.List;
+import com.team11.taskmanagement.model.Task;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface TaskMapper {
     
     @Mapping(target = "id", ignore = true)
@@ -25,9 +28,10 @@ public interface TaskMapper {
     @Mapping(target = "deletedBy", ignore = true)
     Task toEntity(TaskCreateDTO dto);
     
-    @Mapping(target = "assignees", source = "assignees")
+    @Mapping(target = "projectId", source = "project.id")
+    @Mapping(target = "projectName", source = "project.name")
     TaskResponseDTO toResponseDTO(Task task);
-    
+
     List<TaskResponseDTO> toResponseDTOs(List<Task> tasks);
     
     @Mapping(target = "id", ignore = true)

@@ -187,7 +187,7 @@
                         
                         <!-- Task list -->
                         <div class="task-list">
-                            <div th:each="task : ${tasks}" class="task-item" th:attr="divTask=${task.id}">
+                            <div th:each="task : ${project.getTasks()}" class="task-item" th:attr="divTask=${task.id}">
                                 <div class="task-content">
                                     <!-- Left Column -->
                                     <div class="task-left-col">

@@ -18,13 +18,15 @@ import com.team11.taskmanagement.model.Task;
 import com.team11.taskmanagement.model.User;
 import com.team11.taskmanagement.repository.ProjectRepository;
 import com.team11.taskmanagement.repository.TaskRepository;
-
+import com.team11.taskmanagement.model.TaskStatus;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class TaskService {
     private final TaskMapper taskMapper;
     private final TaskRepository taskRepository;
@@ -36,6 +38,13 @@ public class TaskService {
         Task task = taskRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
         return taskMapper.toResponseDTO(task);
+    }
+
+// Get task of current user
+    public List<TaskResponseDTO> getTasksOfUser() {
+        User currentUser = userService.getCurrentUser();
+        List<Task> tasks = taskRepository.findByAssigneesContaining(currentUser);
+        return taskMapper.toResponseDTOs(tasks);
     }
 
 // Get tasks by project id
@@ -97,5 +106,14 @@ public class TaskService {
         Task task = taskRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
         taskRepository.delete(task);
+    }
+
+// Update task status
+    public TaskResponseDTO updateTaskStatus(Long id, String status) {
+        Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+        task.setStatus(TaskStatus.valueOf(status));
+        task.setUpdatedAt(LocalDateTime.now());
+        return taskMapper.toResponseDTO(taskRepository.save(task));
     }
 }
