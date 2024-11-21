@@ -43,7 +43,7 @@ public class User implements UserDetails {
     private String fullName;
 
     @Column(name = "avatar_url")
-    private String avatarUrl;
+    private String avatarUrl = "https://icons.iconarchive.com/icons/papirus-team/papirus-status/512/avatar-default-icon.png";
 
     @Column(name = "phone_number")
     private String phoneNumber;

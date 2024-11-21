@@ -3,6 +3,7 @@ package com.team11.taskmanagement.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.HashSet;
+import java.time.LocalDateTime;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,8 +16,10 @@ import com.team11.taskmanagement.repository.UserRepository;
 import com.team11.taskmanagement.dto.user.UserResponseDTO;
 import com.team11.taskmanagement.mapper.UserMapper;
 import com.team11.taskmanagement.exception.ResourceNotFoundException;
-
+import com.team11.taskmanagement.dto.user.UserCreateDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -24,6 +27,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+
     // Get user by id
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
@@ -68,5 +73,13 @@ public class UserService {
     // Get all users dto
     public List<UserResponseDTO> getAllUsersDTO() {
         return userMapper.toResponseDTOs(getAllUsers());
+    }
+
+    // Create user
+    public void createUser (UserCreateDTO userCreateDTO) {
+        User user = userMapper.toEntity(userCreateDTO);
+        System.out.println(user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
     }
 }
