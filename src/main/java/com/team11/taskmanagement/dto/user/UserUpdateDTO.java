@@ -1,6 +1,5 @@
 package com.team11.taskmanagement.dto.user;
 
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,14 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponseDTO {
-    private Long id;
+public class UserUpdateDTO {
     private String username;
     private String fullName;
+    private String phoneNumber;
     private String email;
-    private String avatarUrl;
     private String role;
     private String status;
-    private String phoneNumber;
-    private LocalDateTime createdAt;    
 }

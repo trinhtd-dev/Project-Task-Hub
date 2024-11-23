@@ -46,7 +46,7 @@
 
         <!-- Users List -->
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            <div th:each="user : ${users}" class="col">
+            <div th:each="user : ${users}" class="col" th:attr="div-user=${user.id}">
                 <div class="card h-100 user-card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-3">
@@ -62,10 +62,10 @@
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" th:href="@{/users/{id}/edit(id=${user.id})}">
+                                    <li><a class="dropdown-item" th:attr="btn-edit-user=${user.id}">
                                         <i class="fas fa-edit me-2"></i>Chỉnh sửa
                                     </a></li>
-                                    <li><a class="dropdown-item" th:href="@{/users/{id}/reset-password(id=${user.id})}">
+                                    <li><a class="dropdown-item" th:attr="btn-reset-password=${user.id}">
                                         <i class="fas fa-key me-2"></i>Đặt lại mật khẩu
                                     </a></li>
                                     <li><hr class="dropdown-divider"></li>
@@ -177,6 +177,109 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal for edit user -->
+        <div class="modal fade" id="editUserModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-user-edit me-2"></i>Chỉnh sửa tài khoản
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editUserForm" method="patch" class="needs-validation" novalidate>
+                            <!-- Username field -->
+                            <div class="mb-3">
+                                <label for="username-edit" class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="username-edit" name="username" required>
+                                <div class="invalid-feedback">Vui lòng nhập tên đăng nhập</div>
+                            </div>
+
+                            <!-- Full name field -->
+                            <div class="mb-3">
+                                <label for="fullName-edit" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="fullName-edit" name="fullName" required>
+                                <div class="invalid-feedback">Vui lòng nhập họ và tên</div>
+                            </div>
+
+                            <!-- Email field -->
+                            <div class="mb-3">
+                                <label for="email-edit" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email-edit" name="email" required>
+                                <div class="invalid-feedback">Vui lòng nhập email hợp lệ</div>
+                            </div>
+
+                            <!-- Phone field -->
+                            <div class="mb-3">
+                                <label for="phoneNumber-edit" class="form-label">Số điện thoại</label>
+                                <input type="tel" class="form-control" id="phoneNumber-edit" name="phoneNumber" 
+                                       pattern="[0-9]{10}">
+                                <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ</div>
+                            </div>
+
+                            <!-- Role field -->
+                            <div class="mb-3">
+                                <label for="role-edit" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                <select class="form-select" id="role-edit" name="role" required>
+                                    <option value="">Chọn vai trò</option>
+                                    <option value="ADMIN">Admin</option>
+                                    <option value="MEMBER">Member</option>
+                                </select>
+                                <div class="invalid-feedback">Vui lòng chọn vai trò</div>
+                            </div>
+
+                            <!-- Status field -->
+                            <div class="mb-3">
+                                <label for="status-edit" class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                                <select class="form-select" id="status-edit" name="status" required>
+                                    <option value="ACTIVE">Đang hoạt động</option>
+                                    <option value="INACTIVE">Không hoạt động</option>
+                                </select>
+                                <div class="invalid-feedback">Vui lòng chọn trạng thái</div>
+                            </div>
+
+                            <div class="modal-footer px-0 pb-0">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Hủy
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Lưu
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for reset password -->
+        <div class="modal fade" id="resetPasswordModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-key me-2"></i>Đặt lại mật khẩu
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Bạn có chắc chắn muốn đặt lại mật khẩu cho tài khoản này?</p>
+                        <p class="text-muted small">Mật khẩu mới sẽ được tạo ngẫu nhiên và hiển thị sau khi đặt lại thành công.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Hủy
+                        </button>
+                        <button type="button" class="btn btn-primary" id="confirmResetPassword">
+                            <i class="fas fa-check me-2"></i>Xác nhận
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+            
     </content>
     <additionalJs>
         <script th:src="@{/js/users/index.js}"></script>

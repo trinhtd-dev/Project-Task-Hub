@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
+
+    // CSRF token
+    const token = document.querySelector("meta[name='_csrf']")?.content;
+const header = document.querySelector("meta[name='_csrf_header']")?.content;
+
+    
     // Form and modal elements
     const form = document.getElementById('createUserForm');
     const modal = document.getElementById('createUserModal');
@@ -14,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('password');
     
     // Toggle password visibility
-    togglePassword.addEventListener('click', function() {
+    togglePassword.addEventListener('click', () => {
         const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordInput.setAttribute('type', type);
         this.querySelector('i').classList.toggle('fa-eye');
@@ -22,23 +28,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Form validation and submission
-    form.addEventListener('submit', async function(e) {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        if (!this.checkValidity()) {
+        if (!e.target.checkValidity()) {
             e.stopPropagation();
-            this.classList.add('was-validated');
+            e.target.classList.add('was-validated');
             return;
         }
 
         try {
-            const formData = new FormData(this);
+            const formData = new FormData(e.target);
             
             const response = await fetch('/users/create', {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    // 'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+                    [header]: token
                 }
             });
 
@@ -63,11 +69,70 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    return;
     // Reset form when modal is closed
     modal.addEventListener('hidden.bs.modal', function() {
         form.reset();
         form.classList.remove('was-validated');
+    });
+
+
+    // Edit user functionality
+    document.querySelectorAll('[btn-edit-user]').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            const userId = e.target.getAttribute('btn-edit-user');
+            const formEdit = document.getElementById('editUserForm');
+            const editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+            
+            try {
+                const response = await fetch(`/api/users/${userId}`);
+                const user = await response.json();
+                
+                // Set form values
+                formEdit.querySelector('#username-edit').value = user.username;
+                formEdit.querySelector('#email-edit').value = user.email;
+                formEdit.querySelector('#fullName-edit').value = user.fullName;
+                formEdit.querySelector('#phoneNumber-edit').value = user.phoneNumber;
+                formEdit.querySelector('#role-edit').value = user.role;
+                formEdit.querySelector('#status-edit').value = user.status;
+                editModal.show();
+                
+                // Update user
+                formEdit.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    try {
+                        // Convert FormData to JSON object
+                        const formData = new FormData(e.target);
+                        const jsonData = Object.fromEntries(formData.entries());
+                        
+                        const response = await fetch(`/api/users/${userId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                [header]: token
+                            },
+                            body: JSON.stringify(jsonData)
+                        });
+
+                        if(response.ok) {
+                            toast.show('success', 'Cập nhật tài khoản thành công');
+                            editModal.hide();
+                            window.location.reload(); // Reload to see changes
+                        } else {
+                            const error = await response.json();
+                            toast.show('error', error.message || 'Có lỗi xảy ra khi cập nhật');
+                        }
+                    } catch (error) {
+                        toast.show('error', 'Có lỗi xảy ra khi cập nhật');
+                        console.error(error);
+                    }
+                });
+            } catch (error) {
+                toast.show('error', 'Có lỗi xảy ra khi tải thông tin người dùng');
+                console.error(error);
+            }
+        });
     });
 
     // Search functionality
@@ -103,21 +168,20 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const userId = this.getAttribute('delete-user');
             
-            if (confirm('Bạn có chắc chắn muốn xóa tài khoản này?')) {
+            if (await confirmDeleteModal('tài khoản này')) {
                 try {
-                    const response = await fetch(`/users/${userId}`, {
+                    const response = await fetch(`/api/users/${userId}`, {
                         method: 'DELETE',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+                            [header]: token
                         }
                     });
-
-                    if (!response.ok) {
+                    if (!response.ok) { 
                         const error = await response.json();
                         throw new Error(error.message || 'Có lỗi xảy ra khi xóa tài khoản');
                     }
 
-                    toast.success('Xóa tài khoản thành công!');
+                    toast.show('success', 'Xóa tài khoản thành công!');
                     
                     // Remove the user card from DOM
                     const userCard = document.querySelector(`[div-user="${userId}"]`);
@@ -126,41 +190,41 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                 } catch (error) {
-                    toast.error(error.message);
+                    toast.show('error', error.message);
                 }
             }
         });
     });
 
     // Reset password functionality
-    document.querySelectorAll('[reset-password]').forEach(button => {
+    document.querySelectorAll('[btn-reset-password]').forEach(button => {
         button.addEventListener('click', async function(e) {
             e.preventDefault();
-            const userId = this.getAttribute('reset-password');
-            
-            if (confirm('Bạn có chắc chắn muốn đặt lại mật khẩu cho tài khoản này?')) {
-                try {
-                    const response = await fetch(`/users/${userId}/reset-password`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
-                        }
-                    });
-
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.message || 'Có lỗi xảy ra khi đặt lại mật khẩu');
+            const userId = this.getAttribute('btn-reset-password');
+            try {
+                const response = await fetch(`/api/users/${userId}/reset-password`, {
+                    method: 'PATCH',
+                    headers: {
+                        [header]: token
                     }
+                });
 
-                    const result = await response.json();
-                    toast.success('Đặt lại mật khẩu thành công!');
-                    
-                    // Show new password in alert
-                    alert(`Mật khẩu mới: ${result.newPassword}`);
-
-                } catch (error) {
-                    toast.error(error.message);
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Có lỗi xảy ra khi đặt lại mật khẩu');
                 }
+
+                // Get the new password as text, not JSON
+                const newPassword = await response.text();
+                toast.show('success', 'Đặt lại mật khẩu thành công!');
+                const infoModal = document.getElementById('infoModal');
+                infoModal.querySelector('.modal-title').textContent = 'Cập nhật mật khẩu';
+                infoModal.querySelector('.modal-body').textContent = `Mật khẩu mới: ${newPassword}`;
+                const modalShowPassword = new bootstrap.Modal(infoModal);
+                modalShowPassword.show();
+            } catch (error) {
+                console.error(error.message);
+                toast.show('error', error.message);
             }
         });
     });

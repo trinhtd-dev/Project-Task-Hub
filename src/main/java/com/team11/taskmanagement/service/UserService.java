@@ -2,23 +2,24 @@ package com.team11.taskmanagement.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.HashSet;
-import java.time.LocalDateTime;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.team11.taskmanagement.dto.user.UserCreateDTO;
+import com.team11.taskmanagement.dto.user.UserResponseDTO;
+import com.team11.taskmanagement.dto.user.UserUpdateDTO;
+import com.team11.taskmanagement.exception.ResourceNotFoundException;
 import com.team11.taskmanagement.exception.UnauthorizedException;
+import com.team11.taskmanagement.mapper.UserMapper;
 import com.team11.taskmanagement.model.User;
 import com.team11.taskmanagement.repository.UserRepository;
-import com.team11.taskmanagement.dto.user.UserResponseDTO;
-import com.team11.taskmanagement.mapper.UserMapper;
-import com.team11.taskmanagement.exception.ResourceNotFoundException;
-import com.team11.taskmanagement.dto.user.UserCreateDTO;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.apache.commons.lang3.RandomStringUtils;
 
 @Service
 @Transactional
@@ -81,5 +82,30 @@ public class UserService {
         System.out.println(user);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
+    }
+
+    // Update user
+    public UserResponseDTO updateUser(Long id, UserUpdateDTO userUpdateDTO) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        userMapper.updateEntity(userUpdateDTO, user);
+        userRepository.save(user);
+        return userMapper.toResponseDTO(user);
+    }
+
+    // Reset password
+    public String resetPassword(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            String newPassword = RandomStringUtils.randomAlphanumeric(5);
+            user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return newPassword;
+    }
+
+    // Delete user
+    public String deleteUser(Long id) {
+        userRepository.deleteById(id);
+        return "User deleted successfully";
     }
 }

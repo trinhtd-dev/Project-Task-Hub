@@ -12,31 +12,32 @@ import com.team11.taskmanagement.dto.task.TaskResponseDTO;
 import com.team11.taskmanagement.dto.task.TaskUpdateDTO;
 import com.team11.taskmanagement.dto.task.TaskStatusUpdateDTO;
 import com.team11.taskmanagement.service.TaskService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 @RestController
+@RequestMapping("/api/tasks")
 public class TaskApiController {
     @Autowired
     private TaskService taskService;
 
-    @GetMapping("/api/tasks/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<TaskResponseDTO> getTaskById(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.getTaskById(id));
     }
 
-    @PatchMapping("/api/tasks/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long id, @RequestBody TaskUpdateDTO taskUpdateDTO) {
         return ResponseEntity.ok(taskService.updateTask(id, taskUpdateDTO));
     }
 
-    @DeleteMapping("/api/tasks/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
 
     // Update task status
-    @PatchMapping("/api/tasks/{id}/status")
+    @PatchMapping("/{id}/status")
     public ResponseEntity<TaskResponseDTO> updateTaskStatus(@PathVariable Long id, @RequestBody TaskStatusUpdateDTO data) {
         return ResponseEntity.ok(taskService.updateTaskStatus(id, data.getStatus()));
     }
