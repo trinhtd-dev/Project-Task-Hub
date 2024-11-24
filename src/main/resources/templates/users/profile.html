@@ -11,12 +11,13 @@
 <body>
     <content>
         <div class="container py-4">
+            <div id="data-user-id" th:data-user-id="${user.id}"></div>
             <!-- Profile Header -->
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="position-relative">
-                            <img th:src="${#authentication.principal.avatarUrl}" 
+                            <img th:src="${user.avatarUrl}" 
                                  alt="Avatar" 
                                  class="rounded-circle"
                                  style="width: 120px; height: 120px; object-fit: cover;">
@@ -27,13 +28,13 @@
                             </button>
                         </div>
                         <div class="ms-4">
-                            <h2 class="mb-1" th:text="${#authentication.principal.fullName}">Họ và tên</h2>
-                            <p class="text-muted mb-2" th:text="${#authentication.principal.email}">email@example.com</p>
+                            <h2 class="mb-1" id="fullName-title" th:text="${user.fullName}">Họ và tên</h2>
+                            <p class="text-muted mb-2" id="email-title" th:text="${user.email}">email@example.com</p>
                             <div class="d-flex align-items-center">
                                 <span class="badge bg-primary me-2" 
-                                      th:text="${#authentication.principal.role}">Vai trò</span>
+                                      th:text="${user.role.name() == 'ADMIN' ? 'Quản trị viên' : 'Thành viên'}">Vai trò</span>
                                 <span class="badge bg-success" 
-                                      th:if="${#authentication.principal.enabled}">Đang hoạt động</span>
+                                      th:if="${user.enabled}">Đang hoạt động</span>
                             </div>
                         </div>
                     </div>
@@ -61,7 +62,7 @@
                                     <p class="mb-0">Tên đăng nhập</p>
                                 </div>
                                 <div class="col-sm-9">
-                                    <p class="text-muted mb-0" th:text="${#authentication.principal.username}">username</p>
+                                    <p class="text-muted mb-0" id="username" th:text="${user.username}">username</p>
                                 </div>
                             </div>
                             <hr>
@@ -70,7 +71,7 @@
                                     <p class="mb-0">Họ và tên</p>
                                 </div>
                                 <div class="col-sm-9">
-                                    <p class="text-muted mb-0" th:text="${#authentication.principal.fullName}">Họ và tên</p>
+                                    <p class="text-muted mb-0" id="fullName" th:text="${user.fullName}">Họ và tên</p>
                                 </div>
                             </div>
                             <hr>
@@ -79,7 +80,7 @@
                                     <p class="mb-0">Email</p>
                                 </div>
                                 <div class="col-sm-9">
-                                    <p class="text-muted mb-0" th:text="${#authentication.principal.email}">email@example.com</p>
+                                    <p class="text-muted mb-0" id="email" th:text="${user.email}">email@example.com</p>
                                 </div>
                             </div>
                             <hr>
@@ -88,7 +89,7 @@
                                     <p class="mb-0">Số điện thoại</p>
                                 </div>
                                 <div class="col-sm-9">
-                                    <p class="text-muted mb-0" th:text="${#authentication.principal.phoneNumber}">0123456789</p>
+                                    <p class="text-muted mb-0" id="phoneNumber" th:text="${user.phoneNumber}">0123456789</p>
                                 </div>
                             </div>
                             <hr>
@@ -98,7 +99,7 @@
                                 </div>
                                 <div class="col-sm-9">
                                     <p class="text-muted mb-0" 
-                                       th:text="${#temporals.format(#authentication.principal.createdAt, 'dd/MM/yyyy')}">
+                                       th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy')}">
                                        01/01/2024
                                     </p>
                                 </div>

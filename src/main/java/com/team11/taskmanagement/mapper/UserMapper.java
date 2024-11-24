@@ -12,7 +12,13 @@ import com.team11.taskmanagement.dto.user.UserSummaryDTO;
 import com.team11.taskmanagement.model.User;
 import com.team11.taskmanagement.dto.user.UserCreateDTO;
 import com.team11.taskmanagement.dto.user.UserUpdateDTO;
-@Mapper(componentModel = "spring")
+
+import org.mapstruct.NullValuePropertyMappingStrategy;
+
+@Mapper(
+    componentModel = "spring",
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface UserMapper {
 // Create user
     @Mapping(target = "id", ignore = true)

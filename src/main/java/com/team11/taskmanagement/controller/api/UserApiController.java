@@ -28,7 +28,6 @@ public class UserApiController {
     // Update user
     @PatchMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
-        System.out.println(userUpdateDTO);
         return ResponseEntity.ok(userService.updateUser(id, userUpdateDTO));
     }
 
