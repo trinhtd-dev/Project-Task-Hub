@@ -30,6 +30,11 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
            "LEFT JOIN FETCH p.announcements " +
            "WHERE p.isDeleted = false")
     List<Project> findAll();
+
+    @Query("SELECT DISTINCT p FROM Project p " +
+           "LEFT JOIN p.members m " +
+           "WHERE m.id = :userId AND p.isDeleted = false")
+    List<Project> findByMembersContaining(@Param("userId") Long userId);
 }
 
 // Các phương thức mặc định được cung cấp bởi JpaRepository:

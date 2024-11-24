@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,27 +17,25 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import com.team11.taskmanagement.exception.ResourceNotFoundException;
 
 import com.team11.taskmanagement.dto.ProjectDTO;
+import com.team11.taskmanagement.dto.project.ProjectResponseDTO;
 import com.team11.taskmanagement.dto.project.ProjectUpdateDTO;
-import com.team11.taskmanagement.dto.task.TaskDTO;
 import com.team11.taskmanagement.dto.task.TaskCreateAndUpdateDTO;
+import com.team11.taskmanagement.dto.task.TaskDTO;
+import com.team11.taskmanagement.exception.ResourceNotFoundException;
+import com.team11.taskmanagement.mapper.ProjectMapper;
 import com.team11.taskmanagement.model.Project;
 import com.team11.taskmanagement.model.ProjectPriority;
 import com.team11.taskmanagement.model.ProjectStatus;
 import com.team11.taskmanagement.model.TagProject;
 import com.team11.taskmanagement.model.Task;
+import com.team11.taskmanagement.model.TaskStatus;
 import com.team11.taskmanagement.model.User;
+import com.team11.taskmanagement.repository.ProjectAnnouncementRepository;
 import com.team11.taskmanagement.repository.ProjectRepository;
 import com.team11.taskmanagement.repository.TaskRepository;
 import com.team11.taskmanagement.repository.UserRepository;
-import com.team11.taskmanagement.model.TaskStatus;
-import com.team11.taskmanagement.repository.ProjectAnnouncementRepository;
-import com.team11.taskmanagement.mapper.TaskMapper;
-import com.team11.taskmanagement.service.UserService;
-import com.team11.taskmanagement.dto.project.ProjectResponseDTO;
-import com.team11.taskmanagement.mapper.ProjectMapper;
 
 
 
@@ -75,6 +72,13 @@ public class ProjectService {
 
     public Optional<Project> getProjectById(Long id) {
         return projectRepository.findById(id);
+    }
+
+    public List<ProjectResponseDTO> getProjectsByUserId(Long userId) {
+        return projectRepository.findByMembersContaining(userId)
+            .stream()
+            .map(projectMapper::toResponseDTO)
+            .collect(Collectors.toList());
     }
 
 
