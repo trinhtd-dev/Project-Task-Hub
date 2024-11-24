@@ -150,8 +150,18 @@ const header = document.querySelector("meta[name='_csrf_header']")?.content;
         userCards.forEach(card => {
             const fullName = card.querySelector('.card-title').textContent.toLowerCase();
             const email = card.querySelector('.text-muted').textContent.toLowerCase();
-            const role = card.querySelector('.badge.bg-primary').textContent;
-            const status = card.querySelector('.badge:not(.bg-primary)').textContent;
+            const roleElement = card.querySelector('.badge.bg-primary');
+            const statusElement = card.querySelector('.badge:not(.bg-primary)');
+            
+            // Get the actual role value from the data attribute or text content
+            let role = roleElement.textContent;
+            if (role === 'Quản trị viên') role = 'ADMIN';
+            if (role === 'Thành viên') role = 'MEMBER';
+            
+            // Get the actual status value from the data attribute or text content
+            let status = statusElement.textContent;
+            if (status === 'Đang hoạt động') status = 'ACTIVE';
+            if (status === 'Đã khóa') status = 'INACTIVE';
             
             const matchesSearch = fullName.includes(searchTerm) || email.includes(searchTerm);
             const matchesRole = !roleValue || role === roleValue;
