@@ -3,6 +3,7 @@ package com.team11.taskmanagement.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,23 +13,28 @@ import org.springframework.transaction.annotation.Transactional;
 import com.team11.taskmanagement.dto.user.UserCreateDTO;
 import com.team11.taskmanagement.dto.user.UserResponseDTO;
 import com.team11.taskmanagement.dto.user.UserUpdateDTO;
-import com.team11.taskmanagement.exception.ResourceNotFoundException;
-import com.team11.taskmanagement.exception.UnauthorizedException;
 import com.team11.taskmanagement.mapper.UserMapper;
 import com.team11.taskmanagement.model.User;
 import com.team11.taskmanagement.repository.UserRepository;
+import com.team11.taskmanagement.dto.password.ChangePasswordDTO;
+
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.RandomStringUtils;
+import lombok.extern.slf4j.Slf4j;
+import com.team11.taskmanagement.exception.*;
+
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+    private final OtpService otpService;
 
     // Get user by id
     public Optional<User> getUserById(Long id) {
@@ -109,4 +115,44 @@ public class UserService {
         userRepository.deleteById(id);
         return "User deleted successfully";
     }
+
+    public void sendChangePasswordOtp(String email) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+            
+        String otp = otpService.generateOtp(email);
+        emailService.sendOtp(email, otp);
+        
+        log.info("Change password OTP sent for user: {}", user.getUsername());
+    }
+    
+    public void verifyOtp(String email, String otp) {
+        // Verify user exists
+        userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+            
+        // Verify OTP
+        otpService.verifyOtp(email, otp);
+        
+        log.info("OTP verified successfully for email: {}", email);
+    }
+    
+    public void changePassword(ChangePasswordDTO request) {
+        // Validate passwords match
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new InvalidPasswordException("New password and confirmation do not match");
+        }
+        
+        // Get user and update password
+        User user = userRepository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        
+        log.info("Password changed successfully for user: {}", user.getUsername());
+    }
+
+    
+    
 }
