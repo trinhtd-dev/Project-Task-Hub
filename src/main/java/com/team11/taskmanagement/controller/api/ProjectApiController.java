@@ -15,7 +15,6 @@ import com.team11.taskmanagement.dto.task.TaskCreateDTO;
 import com.team11.taskmanagement.dto.task.TaskResponseDTO;
 import com.team11.taskmanagement.dto.project.ProjectUpdateDTO;
 import com.team11.taskmanagement.dto.project.ProjectResponseDTO;
-import com.team11.taskmanagement.model.Project;
 import com.team11.taskmanagement.service.ProjectService;
 import com.team11.taskmanagement.service.TaskService;
 

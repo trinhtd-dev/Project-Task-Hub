@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.team11.taskmanagement.dto.user.UserCreateDTO;
 import com.team11.taskmanagement.dto.user.UserResponseDTO;
@@ -17,12 +18,13 @@ import com.team11.taskmanagement.mapper.UserMapper;
 import com.team11.taskmanagement.model.User;
 import com.team11.taskmanagement.repository.UserRepository;
 import com.team11.taskmanagement.dto.password.ChangePasswordDTO;
-
+import com.team11.taskmanagement.exception.*;
+import com.team11.taskmanagement.config.CloudinaryConfig;
+import com.cloudinary.Cloudinary;
+import com.team11.taskmanagement.service.CloudinaryService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.team11.taskmanagement.exception.*;
-
 
 @Service
 @Transactional
@@ -35,6 +37,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final OtpService otpService;
+    private final CloudinaryService cloudinaryService;
 
     // Get user by id
     public Optional<User> getUserById(Long id) {
@@ -153,6 +156,40 @@ public class UserService {
         log.info("Password changed successfully for user: {}", user.getUsername());
     }
 
-    
-    
+    public UserResponseDTO updateAvatar(Long userId, MultipartFile file) {
+        // Validate file
+        if (file.isEmpty()) {
+            throw new InvalidFileException("Vui lòng chọn một ảnh");
+        }
+        
+        // Validate file type
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new InvalidFileException("Chỉ chấp nhận file ảnh");
+        }
+        
+        // Get user
+        User user = getUserById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
+            
+        try {
+            // Delete old avatar if exists
+            if (user.getAvatarUrl() != null) {
+                cloudinaryService.deleteImage(user.getAvatarUrl());
+            }
+            
+            // Upload new avatar
+            String avatarUrl = cloudinaryService.uploadImage(file);
+            
+            // Update user
+            user.setAvatarUrl(avatarUrl);
+            userRepository.save(user);
+            
+            return userMapper.toResponseDTO(user);
+            
+        } catch (Exception e) {
+            throw new FileUploadException("Không thể tải lên ảnh. Vui lòng thử lại", e);
+        }
+    }
+
 }

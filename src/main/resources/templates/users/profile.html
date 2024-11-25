@@ -217,7 +217,7 @@
             </div>
         </div>
 
-        <!-- Change Avatar Modal -->
+        <!-- Avatar Modal -->
         <div class="modal fade" id="avatarModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -231,14 +231,20 @@
                         <form id="avatarForm" class="needs-validation" novalidate>
                             <div class="mb-3">
                                 <label class="form-label">Chọn ảnh</label>
-                                <input type="file" class="form-control" name="avatar" accept="image/*" required>
+                                <input type="file" class="form-control" 
+                                       name="avatar" 
+                                       accept="image/*"
+                                       required>
+                                <div class="invalid-feedback">
+                                    Vui lòng chọn một ảnh
+                                </div>
                             </div>
                             <div class="modal-footer px-0 pb-0">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-2"></i>Hủy
                                 </button>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-upload me-2"></i>Tải lên
+                                    <i class="fas fa-save me-2"></i>Lưu thay đổi
                                 </button>
                             </div>
                         </form>

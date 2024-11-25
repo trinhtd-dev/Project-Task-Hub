@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.team11.taskmanagement.dto.user.UserResponseDTO;
 import com.team11.taskmanagement.dto.user.UserUpdateDTO;
@@ -19,9 +20,6 @@ import com.team11.taskmanagement.dto.password.OtpVerificationDTO;
 import com.team11.taskmanagement.dto.password.ChangePasswordDTO;
 
 import com.team11.taskmanagement.service.UserService;
-import com.team11.taskmanagement.exception.InvalidOtpException;
-import com.team11.taskmanagement.exception.InvalidPasswordException;
-import com.team11.taskmanagement.exception.ResourceNotFoundException;
 
 
 @RestController
@@ -72,5 +70,12 @@ public class UserApiController {
         System.out.println("Request: ----------------------------------");
         System.out.println(request);
         return ResponseEntity.ok("Password changed successfully");
+    }
+
+    @PostMapping("/{id}/avatar")
+    public ResponseEntity<UserResponseDTO> updateAvatar(
+            @PathVariable Long id,
+            @RequestParam("avatar") MultipartFile file) {
+        return ResponseEntity.ok(userService.updateAvatar(id, file));
     }
 }
