@@ -56,13 +56,6 @@ public class ProjectApiController {
         }
     }
 
-    // Delete project
-    @DeleteMapping("/{id}/delete")
-    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
-        projectService.deleteProject(id);
-        return ResponseEntity.noContent().build();
-    }
-
      // Create task
      @PostMapping("/{id}/add-task")
      public ResponseEntity<TaskResponseDTO> createTask(

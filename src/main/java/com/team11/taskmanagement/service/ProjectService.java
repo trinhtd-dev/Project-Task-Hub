@@ -210,6 +210,18 @@ public class ProjectService {
         }
     }
 
+    // Soft Delete Project
+    @Transactional
+    public void softDeleteProject(Long id) {
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        project.setIsDeleted(true);
+        project.setDeletedAt(LocalDateTime.now());
+        project.setDeletedBy(userService.getCurrentUser().getId());
+        projectRepository.save(project);
+    }
+
+    // Add member to project
     @Transactional
     public void addMemberToProject(Long projectId, Long userId) {
         Project project = projectRepository.findById(projectId)
@@ -242,5 +254,19 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
         return project.getMembers();
+    }
+
+    // Get deleted projects
+    public List<Project> getDeletedProjects() {
+        return projectRepository.findByIsDeletedTrue();
+    }
+
+    // Restore project by Id
+    @Transactional
+    public void restoreProject(Long id) {
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        project.setIsDeleted(false);
+        projectRepository.save(project);
     }
 }

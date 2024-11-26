@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // CSRF token
     const token = document.querySelector("meta[name='_csrf']")?.content;
-const header = document.querySelector("meta[name='_csrf_header']")?.content;
+    const header = document.querySelector("meta[name='_csrf_header']")?.content;
 
     
     // Form and modal elements

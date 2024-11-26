@@ -1,7 +1,10 @@
 package com.team11.taskmanagement.controller;
 
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -9,6 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -153,9 +158,36 @@ public class ProjectController {
     // Show trash project
     @GetMapping("/trash")
     public String showTrash(Model model) {
-        log.info("Show trash project");
+        log.info("Showing trash page");
+        List<Project> deletedProjects = projectService.getDeletedProjects();
+        model.addAttribute("projects", deletedProjects);
         model.addAttribute("currentUrl", "/projects/trash");
-        // Add logic to get list of deleted projects if needed
         return "projects/trash";
+    }
+
+    // Restore project
+    @PatchMapping("/{id}/restore")
+    public ResponseEntity<?> restoreProject(@PathVariable Long id) {
+        try {
+            projectService.restoreProject(id);
+            return ResponseEntity.ok("Project restored successfully");
+        } catch (Exception e) {
+            log.error("Error restoring project", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error restoring project: " + e.getMessage());
+        }
+    }
+
+    // Soft Delete project
+    @PatchMapping("/{id}/delete")
+    public ResponseEntity<Void> softDeleteProject(@PathVariable Long id) {
+        projectService.softDeleteProject(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Delete project
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+        projectService.deleteProject(id);
+        return ResponseEntity.noContent().build();
     }
 }

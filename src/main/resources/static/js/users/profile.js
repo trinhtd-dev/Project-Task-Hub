@@ -1,7 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Get CSRF token
-    const token = document.querySelector("meta[name='_csrf']").getAttribute("content");
-    const header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+document.addEventListener('DOMContentLoaded', function() { const header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
     const emailUser = document.getElementById("data-user-email").getAttribute("data-user-email");
     // Modal references
     const otpVerificationModal = new bootstrap.Modal(document.getElementById('otpVerificationModal'));
