@@ -94,6 +94,15 @@
                                 </div>
                             </div>
                             <hr>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Chức vụ</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="text-muted mb-0" id="position" th:text="${user.position}">Chức vụ</p>
+                                </div>
+                            </div>
+                            <hr>
                             <div class="row">
                                 <div class="col-sm-3">
                                     <p class="mb-0">Ngày tham gia</p>
@@ -109,7 +118,7 @@
                     </div>
 
                     <!-- Security Settings -->
-                    <div class="card">
+                    <div class="card" sec:authorize="#id == authentication.principal.id">
                         <div class="card-header">
                             <h5 class="mb-0">
                                 <i class="fas fa-shield-alt me-2"></i>Bảo mật

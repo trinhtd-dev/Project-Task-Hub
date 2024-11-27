@@ -8,4 +8,5 @@ public class UserSummaryDTO {
     private String name;
     private String email;
     private String avatarUrl;
+    private String position;
 }

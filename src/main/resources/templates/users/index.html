@@ -25,7 +25,6 @@
         </div>
 
         <!-- Phần tìm kiếm và lọc -->
-        <div sec:authorize="hasRole('ROLE_ADMIN')">
         <div class="card mb-4">
             <div class="card-body">
                 <div class="row g-3">
@@ -35,14 +34,14 @@
                             <input type="text" id="userSearch" class="form-control" placeholder="Tìm kiếm tài khoản...">
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3" sec:authorize="hasRole('ROLE_ADMIN')">
                         <select class="form-select" id="roleFilter">
                             <option value="">Tất cả vai trò</option>
                             <option value="ADMIN">Quản trị viên</option>
                             <option value="MEMBER">Thành viên</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3" sec:authorize="hasRole('ROLE_ADMIN')">
                         <select class="form-select" id="statusFilter">
                             <option value="">Tất cả trạng thái</option>
                             <option value="ACTIVE">Đang hoạt động</option>
@@ -52,7 +51,6 @@
                     </div>
                 </div>
             </div>
-        </div>
 
         <!-- Danh sách người dùng -->
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -64,7 +62,7 @@
                                 <img th:src="${user.avatarUrl}" alt="Ảnh đại diện" class="rounded-circle me-3" width="50" height="50">
                                 <div>
                                     <h5 class="card-title mb-1" th:text="${user.fullName}">Họ và tên</h5>
-                                    <p class="text-muted mb-0" th:text="${user.email}">email@example.com</p>
+                                    <p class="text-muted mb-0 font-monospace" th:text="${user.position}">Chức vụ</p>
                                 </div>
                             </div>
                             <div class="dropdown" sec:authorize="hasRole('ROLE_ADMIN')">
@@ -72,6 +70,9 @@
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" th:href="@{/users/profile/{id}(id=${user.id})}" th:attr="view-user=${user.id}">
+                                        <i class="fas fa-eye me-2"></i>Xem trang cá nhân
+                                    </a></li>
                                     <li><a class="dropdown-item" th:attr="btn-edit-user=${user.id}">
                                         <i class="fas fa-edit me-2"></i>Chỉnh sửa
                                     </a></li>
@@ -87,16 +88,17 @@
                         </div>
                         <div class="user-info">
                             <div class="mb-2">
-                                <span class="badge"
+                                <span class="badge role-badge" sec:authorize="hasRole('ROLE_ADMIN')"
                                       th:classappend="${user.role.name() == 'ADMIN' ? 'bg-primary' : 'bg-info'}"
                                       th:text="${user.role.name() == 'ADMIN' ? 'Quản trị viên' : 'Thành viên'}">ADMIN
                                 </span>
-                                <span class="badge"
+                                <span class="badge status-badge" sec:authorize="hasRole('ROLE_ADMIN')"
                                       th:classappend="${user.status.name() == 'ACTIVE' ? 'bg-success' : 'bg-danger'}" 
                                       th:text="${user.status.name() == 'ACTIVE' ? 'Đang hoạt động' : 'Đã khóa'}">Đang hoạt động
                                 </span>
                             </div>
                             <div class="text-muted small">
+                                <p class="mb-1"><i class="fas fa-envelope me-2"></i><span th:text="${user.email}">email@example.com</span></p>
                                 <p class="mb-1"><i class="fas fa-phone me-2"></i><span th:text="${user.phoneNumber}">0123456789</span></p>
                                 <p class="mb-1"><i class="fas fa-calendar me-2"></i>Tham gia: <span th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy')}">01/01/2024</span></p>
                             </div>
@@ -156,6 +158,12 @@
                                     </button>
                                 </div>
                                 <div class="invalid-feedback">Vui lòng nhập mật khẩu</div>
+                            </div>
+
+                            <!-- Trường chức vụ -->
+                            <div class="mb-3">
+                                <label for="position" class="form-label">Chức vụ</label>
+                                <input type="text" class="form-control" id="position" name="position">
                             </div>
 
                             <!-- Trường vai trò -->
@@ -232,6 +240,12 @@
                                 <input type="tel" class="form-control" id="phoneNumber-edit" name="phoneNumber" 
                                        pattern="[0-9]{10}">
                                 <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ</div>
+                            </div>
+
+                            <!-- Trường chức vụ -->
+                            <div class="mb-3">
+                                <label for="position-edit" class="form-label">Chức vụ</label>
+                                <input type="text" class="form-control" id="position-edit" name="position">
                             </div>
 
                             <!-- Trường vai trò -->

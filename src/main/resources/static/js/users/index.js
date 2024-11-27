@@ -10,10 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('createUserModal');
     const modalInstance = new bootstrap.Modal(modal);
     
-    // Search and filter elements
-    const searchInput = document.getElementById('userSearch');
-    const roleFilter = document.getElementById('roleFilter');
-    const statusFilter = document.getElementById('statusFilter');
 
     // Password toggle functionality
     const togglePassword = document.getElementById('togglePassword');
@@ -58,10 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Close modal and reset form
             modalInstance.hide();
-            this.reset();
-            this.classList.remove('was-validated');
-            
-            // Reload user list
+            e.target.classList.remove('was-validated');
             window.location.reload();
 
         } catch (error) {
@@ -94,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 formEdit.querySelector('#email-edit').value = user.email;
                 formEdit.querySelector('#fullName-edit').value = user.fullName;
                 formEdit.querySelector('#phoneNumber-edit').value = user.phoneNumber;
+                formEdit.querySelector('#position-edit').value = user.position;
                 formEdit.querySelector('#role-edit').value = user.role;
                 formEdit.querySelector('#status-edit').value = user.status;
                 editModal.show();
@@ -136,23 +130,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Search functionality
+    const searchInput = document.getElementById('userSearch');
+    const roleFilter = document.getElementById('roleFilter');
+    const statusFilter = document.getElementById('statusFilter');
     searchInput.addEventListener('input', filterUsers);
     roleFilter.addEventListener('change', filterUsers);
     statusFilter.addEventListener('change', filterUsers);
 
     function filterUsers() {
-        const searchTerm = searchInput.value.toLowerCase();
+        const searchTerm = searchInput.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         const roleValue = roleFilter.value;
         const statusValue = statusFilter.value;
         
         const userCards = document.querySelectorAll('.user-card');
-        
         userCards.forEach(card => {
-            const fullName = card.querySelector('.card-title').textContent.toLowerCase();
-            const email = card.querySelector('.text-muted').textContent.toLowerCase();
-            const roleElement = card.querySelector('.badge.bg-primary');
-            const statusElement = card.querySelector('.badge:not(.bg-primary)');
-            
+            const fullName = card.querySelector('.card-title').textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const email = card.querySelector('.text-muted').textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const roleElement = card.querySelector('.badge.role-badge');
+            const statusElement = card.querySelector('.badge.status-badge');
+
             // Get the actual role value from the data attribute or text content
             let role = roleElement.textContent;
             if (role === 'Quản trị viên') role = 'ADMIN';
@@ -163,7 +159,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (status === 'Đang hoạt động') status = 'ACTIVE';
             if (status === 'Đã khóa') status = 'INACTIVE';
             
-            const matchesSearch = fullName.includes(searchTerm) || email.includes(searchTerm);
+            // Use regex for search
+            const regex = new RegExp(searchTerm, 'i'); // 'i' for case-insensitive
+            const matchesSearch = regex.test(fullName) || regex.test(email);
             const matchesRole = !roleValue || role === roleValue;
             const matchesStatus = !statusValue || status === statusValue;
             

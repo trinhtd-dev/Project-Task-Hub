@@ -11,6 +11,7 @@ public class UserUpdateDTO {
     private String username;
     private String fullName;
     private String phoneNumber;
+    private String position;
     private String email;
     private String role;
     private String status;

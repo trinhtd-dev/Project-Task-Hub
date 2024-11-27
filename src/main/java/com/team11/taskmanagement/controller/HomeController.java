@@ -84,7 +84,6 @@ public class HomeController {
             
             log.info("Dashboard loaded successfully for user: {}", userDetails.getUsername());
             return "home/index";
-            
         } catch (Exception e) {
             log.error("Error loading dashboard for user: {}", userDetails.getUsername(), e);
             return "error";

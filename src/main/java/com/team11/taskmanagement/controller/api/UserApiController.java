@@ -21,6 +21,7 @@ import com.team11.taskmanagement.dto.password.ChangePasswordDTO;
 
 import com.team11.taskmanagement.service.UserService;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/users")
@@ -35,18 +36,22 @@ public class UserApiController {
     }
 
     // Update user
+    //  Authorize for ADMIN or current user
+    @PreAuthorize("hasRole('ROLE_ADMIN') or #id == authentication.principal.id")
     @PatchMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
         return ResponseEntity.ok(userService.updateUser(id, userUpdateDTO));
     }
 
     // Reset password
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/{id}/reset-password")
     public ResponseEntity<String> resetPassword(@PathVariable Long id) {
         return ResponseEntity.ok(userService.resetPassword(id));
     }
 
     // Delete user
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.deleteUser(id));
@@ -72,6 +77,7 @@ public class UserApiController {
         return ResponseEntity.ok("Password changed successfully");
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') or #id == authentication.principal.id")
     @PostMapping("/{id}/avatar")
     public ResponseEntity<UserResponseDTO> updateAvatar(
             @PathVariable Long id,

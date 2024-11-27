@@ -89,7 +89,6 @@ public class UserService {
     // Create user
     public void createUser (UserCreateDTO userCreateDTO) {
         User user = userMapper.toEntity(userCreateDTO);
-        System.out.println(user);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
