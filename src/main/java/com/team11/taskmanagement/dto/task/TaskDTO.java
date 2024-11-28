@@ -7,7 +7,8 @@ import lombok.Data;
 @Data
 public class TaskDTO {
     private String name;
-    private String description; 
+    private String description;
+    private LocalDate startDate;
     private LocalDate dueDate;
     private List<Long> assigneeIds;
 }

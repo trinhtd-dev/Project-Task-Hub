@@ -66,8 +66,11 @@
                                             <div class="date-icon-wrapper">
                                                 <i class="fas fa-calendar-days"></i>
                                             </div>
-                                            <span class="task-date" 
-                                                  th:text="${task.dueDate != null ? #temporals.format(task.dueDate, 'dd/MM/yyyy') : 'Chưa có hạn'}">
+                                            <span class="task-date" th:text="${task.startDate != null ? #temporals.format(task.startDate, 'dd/MM/yyyy') : 'Chưa có'}">
+                                                01/01/2023
+                                            </span>
+                                            <span class="task-date-separator">-</span>
+                                            <span class="task-date" th:text="${task.dueDate != null ? #temporals.format(task.dueDate, 'dd/MM/yyyy') : 'Chưa có'}">
                                                 31/12/2023
                                             </span>
                                         </div>

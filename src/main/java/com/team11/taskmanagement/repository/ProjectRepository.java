@@ -19,6 +19,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
            "LEFT JOIN FETCH t.assignees " +
            "LEFT JOIN FETCH t.createdBy " +
            "LEFT JOIN FETCH p.announcements " +
+           "LEFT JOIN FETCH p.attachments " +
+           "LEFT JOIN FETCH p.comments " +
            "WHERE p.id = :id")
     Optional<Project> findById(@Param("id") Long id);
     
@@ -28,6 +30,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
            "LEFT JOIN FETCH t.assignees " +
            "LEFT JOIN FETCH t.createdBy " +
            "LEFT JOIN FETCH p.announcements " +
+           "LEFT JOIN FETCH p.attachments " +
+           "LEFT JOIN FETCH p.comments " +
            "WHERE p.isDeleted = false")
     List<Project> findAll();
 

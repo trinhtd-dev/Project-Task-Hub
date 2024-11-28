@@ -2,7 +2,8 @@ package com.team11.taskmanagement.controller;
 
 import java.util.List;
 import java.util.Map;
-
+import java.util.Comparator;
+import java.util.ArrayList;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,7 +34,6 @@ import com.team11.taskmanagement.service.UserService;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-
 @Controller
 @RequestMapping("/projects")
 @Slf4j
@@ -108,13 +108,13 @@ public class ProjectController {
     // Show project details
     @GetMapping("/{id}")
     public String showProjectDetails(@PathVariable Long id, Model model) {
-        log.info("Show project details with ID: {}", id);
         try {
             Project project = projectService.getProjectById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
             
-            List<Task> tasks = taskService.getTasksByProjectId(id);
-            
+            List<Task> tasks = new ArrayList<>(project.getTasks());
+            tasks.sort(Comparator.comparing(Task::getStartDate));
+
             List<User> members = userService.getUsersByProjectId(id);
 
             List<ProjectAnnouncement> announcements = 
@@ -125,8 +125,8 @@ public class ProjectController {
             model.addAttribute("members", members);
             model.addAttribute("announcements", announcements);
             return "projects/project-details";
-        } catch (ResourceNotFoundException e) {
-            log.error("Project not found", e);
+        } catch (Exception e) {
+            log.error("Error when show project details", e);
             model.addAttribute("errorMessage", e.getMessage());
             return "error";
         }

@@ -1,5 +1,11 @@
 // Main event listener when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
+    
+    // CSRF token
+    const token = document.querySelector("meta[name='_csrf']")?.content;
+    const header = document.querySelector("meta[name='_csrf_header']")?.content;
+
+
     // Initialize member selection modal components
     const memberSelectionBtn = document.getElementById('memberSelectionBtn');
     const memberModalElement = document.getElementById('memberModal');
@@ -66,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const taskName = document.getElementById('taskName').value;
             const taskDescription = document.getElementById('taskDescription').value;
             const taskDueDate = document.getElementById('taskDueDate').value;
+            const taskStartDate = document.getElementById('taskStartDate').value;
             const taskAssignees = document.querySelectorAll('.task-assignee:checked');
             // Map selected assignees to objects
             const assignees = Array.from(taskAssignees).map(checkbox => ({
@@ -84,6 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const task = {
                 name: taskName,
                 description: taskDescription,
+                startDate: taskStartDate,
                 dueDate: taskDueDate,
                 assignees: assignees
             };
@@ -125,6 +133,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="task-info">
                     <div class="task-date">
                         <i class="far fa-calendar-alt me-1"></i>
+                        <small>${formatDate(task.startDate)}</small>
+                        <span class="task-date-separator">-</span>
                         <small>${formatDate(task.dueDate)}</small>
                     </div>
                     <div class="task-assignees mt-2">
@@ -160,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('taskName').value = task.name;
         document.getElementById('taskDescription').value = task.description;
         document.getElementById('taskDueDate').value = task.dueDate;
-        
+        document.getElementById('taskStartDate').value = task.startDate;
         // Reset assignee checkboxes
         document.querySelectorAll('.task-assignee').forEach(checkbox => {
             checkbox.checked = false;
@@ -226,6 +236,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 taskDescInput.value = task.description;
                 form.appendChild(taskDescInput);
 
+                // Add task start date
+                const taskStartDateInput = document.createElement('input');
+                taskStartDateInput.type = 'hidden';
+                taskStartDateInput.name = `tasks[${index}].startDate`;
+                taskStartDateInput.value = task.startDate;
+                form.appendChild(taskStartDateInput);
+
                 // Add task due date
                 const taskDueDateInput = document.createElement('input');
                 taskDueDateInput.type = 'hidden';
@@ -242,6 +259,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     form.appendChild(assigneeInput);
                 });
             });
+
+            // Add CSRF token to form
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = header.replace('X-', '');
+            csrfInput.value = token;
+            form.appendChild(csrfInput);
 
             // Submit the form
             form.submit();

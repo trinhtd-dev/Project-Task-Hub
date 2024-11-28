@@ -17,7 +17,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.CascadeType;
 import lombok.Data;
 
 @Data
@@ -37,6 +39,9 @@ public class Task {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private TaskStatus status;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
 
     @Column(name = "due_date")
     private LocalDate dueDate;
@@ -75,12 +80,38 @@ public class Task {
     @Column(name = "deleted_by")
     private Long deletedBy;
 
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Attachment> attachments = new HashSet<>();
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Comment> comments = new HashSet<>();
+
     public void addAssignee(User user) {
         assignees.add(user);
     }
 
     public void removeAssignee(User user) {
         assignees.remove(user);
+    }
+
+    public void addAttachment(Attachment attachment) {
+        attachments.add(attachment);
+        attachment.setTask(this);
+    }
+
+    public void removeAttachment(Attachment attachment) {
+        attachments.remove(attachment);
+        attachment.setTask(null);
+    }
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setTask(this);
+    }
+
+    public void removeComment(Comment comment) {
+        comments.remove(comment);
+        comment.setTask(null);
     }
 
     @Override

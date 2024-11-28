@@ -1,7 +1,6 @@
 package com.team11.taskmanagement.controller.api;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,9 +35,6 @@ public class ProjectApiController {
         this.taskService = taskService;   
         this.projectService = projectService;
     }
-    
-
-   
 
     // Update project
     @PatchMapping("/{id}/update")

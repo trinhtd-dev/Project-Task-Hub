@@ -11,6 +11,7 @@ import lombok.Data;
 public class TaskUpdateDTO {
     private String name;
     private String description;
+    private LocalDate startDate;
     private LocalDate dueDate;
     private TaskStatus status;
     private List<Long> assigneeIds;

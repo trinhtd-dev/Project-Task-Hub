@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
+
+    // CSRF token
+    const token = document.querySelector("meta[name='_csrf']")?.content;
+    const header = document.querySelector("meta[name='_csrf_header']")?.content;
+
+
     // Member Selection Modal
     const memberSelectionBtn = document.getElementById('memberSelectionBtn');
     const memberModalElement = document.getElementById('memberModal');
@@ -119,6 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
             name: document.getElementById('taskName').value,
             description: document.getElementById('taskDescription').value,
             status: document.getElementById('taskStatus').value,
+            startDate: document.getElementById('taskStartDate').value,
             dueDate: document.getElementById('taskDueDate').value,
             assignees: Array.from(document.querySelectorAll('.task-assignee:checked')).map(checkbox => ({
                 id: checkbox.value,
@@ -293,6 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
+                    [header]: token
                 },
                 body: JSON.stringify(projectData)
             });

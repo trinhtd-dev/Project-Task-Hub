@@ -9,6 +9,7 @@ import lombok.Data;
 public class TaskCreateDTO {
     private String name;
     private String description;
+    private LocalDate startDate;
     private LocalDate dueDate;
     private List<Long> assigneeIds;
 }

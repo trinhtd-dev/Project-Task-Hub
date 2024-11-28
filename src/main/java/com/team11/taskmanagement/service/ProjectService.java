@@ -118,6 +118,7 @@ public class ProjectService {
             task.setName(taskDTO.getName());
             task.setDescription(taskDTO.getDescription());
             task.setDueDate(taskDTO.getDueDate());
+            task.setStartDate(taskDTO.getStartDate());
             task.setProject(project);
             task.setStatus(TaskStatus.TODO);
             task.setCreatedBy(user);
@@ -168,6 +169,7 @@ public class ProjectService {
         task.setName(taskDTO.getName());
         task.setDescription(taskDTO.getDescription());
         task.setDueDate(taskDTO.getDueDate());
+        task.setStartDate(taskDTO.getStartDate());
         task.setStatus(TaskStatus.valueOf(taskDTO.getStatus()));
         
         // Set assignees

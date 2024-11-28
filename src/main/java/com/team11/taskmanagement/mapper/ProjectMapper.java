@@ -11,12 +11,15 @@ import com.team11.taskmanagement.dto.ProjectDTO;
 import com.team11.taskmanagement.dto.project.ProjectResponseDTO;
 import com.team11.taskmanagement.dto.project.ProjectUpdateDTO;
 import com.team11.taskmanagement.model.Project;
+import com.team11.taskmanagement.dto.attachment.AttachmentResponseDTO;
+import com.team11.taskmanagement.model.Attachment;
+import com.team11.taskmanagement.dto.comment.CommentResponseDTO;
+import com.team11.taskmanagement.model.Comment;
 
 
 @Mapper(
     componentModel = "spring",
-    uses = {UserMapper.class, TaskMapper.class},
-    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+    uses = {UserMapper.class, TaskMapper.class, AttachmentMapper.class, CommentMapper.class}
 )
 public interface ProjectMapper {
     
@@ -36,6 +39,8 @@ public interface ProjectMapper {
 
     @Mapping(target = "members", source = "members")
     @Mapping(target = "tasks", source = "tasks")
+    @Mapping(target = "attachments", source = "attachments")
+    @Mapping(target = "comments", source = "comments")
     ProjectResponseDTO toResponseDTO(Project project);
 
     @Mapping(target = "id", ignore = true)
@@ -55,4 +60,5 @@ public interface ProjectMapper {
     @Mapping(target = "tag", expression = "java(dto.getBasic() != null && dto.getBasic().getTag() != null ? com.team11.taskmanagement.model.TagProject.valueOf(dto.getBasic().getTag()) : project.getTag())")
     @Mapping(target = "announcements", ignore = true)
     void updateEntityFromDTO(ProjectUpdateDTO dto, @MappingTarget Project project);
+    
 } 

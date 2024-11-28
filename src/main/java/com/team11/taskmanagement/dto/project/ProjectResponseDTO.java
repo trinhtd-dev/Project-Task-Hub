@@ -2,8 +2,11 @@ package com.team11.taskmanagement.dto.project;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
+import com.team11.taskmanagement.dto.attachment.AttachmentResponseDTO;
+import com.team11.taskmanagement.dto.comment.CommentResponseDTO;
 import com.team11.taskmanagement.dto.task.TaskResponseDTO;
 import com.team11.taskmanagement.dto.user.UserSummaryDTO;
 import com.team11.taskmanagement.model.ProjectPriority;
@@ -26,4 +29,6 @@ public class ProjectResponseDTO {
     private Set<TaskResponseDTO> tasks;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Set<AttachmentResponseDTO> attachments;
+    private Set<CommentResponseDTO> comments;
 }

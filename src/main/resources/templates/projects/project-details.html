@@ -13,18 +13,35 @@
             <div class="col-lg-8 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h1 class="card-title h3 mb-0" th:text="${project.name}" th:attr="data-project-id=${project.id}">Tên dự án</h1>
+                        <div class="project-header" th:attr="data-project-id=${project.id}">
                             <div class="project-actions">
-                                <a th:href="@{/projects/{id}/edit(id=${project.id})}" class="btn btn-outline-primary btn-sm me-2">
+                                <button class="btn btn-documents" document-project-button data-bs-toggle="modal" data-bs-target="#projectDocumentsModal">
+                                    <i class="fas fa-file-alt me-1"></i>Tài liệu
+                                    <span class="badge bg-info" th:text="${project.attachments.size()}">0</span>
+                                </button>
+                                
+                                <button class="btn btn-discussions" data-bs-toggle="modal" data-bs-target="#projectDiscussionsModal">
+                                    <i class="fas fa-comments me-1"></i>Thảo luận
+                                    <span class="badge bg-secondary" th:text="${project.comments.size()}">0</span>
+                                </button>
+                                
+                                <a th:href="@{/projects/{id}/edit(id=${project.id})}" class="btn btn-edit">
                                     <i class="fas fa-edit me-1"></i>Chỉnh sửa
                                 </a>
-                                <button class="btn btn-outline-danger btn-sm">
+                                
+                                <button class="btn btn-delete" th:attr="delete-project-button=${project.id}">
                                     <i class="fas fa-trash-alt me-1"></i>Xóa
                                 </button>
                             </div>
+                            
+                            <h1 class="project-title">
+                                <i class="fas fa-project-diagram me-2"></i>
+                                <span th:text="${project.name}" class="text-dark font-weight-bold ">Project Name</span>
+                            </h1>
+                            
+                            
                         </div>
-                        <div class="project-description mb-4" th:text="${project.description ?: 'Chưa có mô tả cho dự án này'}">
+                        <div class="project-description formatted-description mb-4" th:text="${project.description ?: 'Chưa có mô tả cho dự án này'}">
                             Mô tả dự án
                         </div>
                         <div class="project-info-grid">
@@ -187,13 +204,13 @@
                         
                         <!-- Task list -->
                         <div class="task-list">
-                            <div th:each="task : ${project.getTasks()}" class="task-item" th:attr="divTask=${task.id}">
+                            <div th:each="task : ${tasks}" class="task-item" th:attr="divTask=${task.id}">
                                 <div class="task-content">
                                     <!-- Left Column -->
                                     <div class="task-left-col">
                                         <div class="task-header-group">
                                             <h6 class="task-title" th:text="${task.name}">Thiết kế giao diện</h6>
-                                            <span th:if="${task.dueDate != null && task.dueDate.isBefore(T(java.time.LocalDate).now())}" 
+                                            <span th:if="${task.dueDate != null && task.dueDate.isBefore(T(java.time.LocalDate).now()) && task.status.name() != 'DONE'}" 
                                                   class="task-badge task-badge-overdue">
                                                 <i class="fas fa-exclamation-circle me-1"></i>
                                                 Quá hạn
@@ -204,7 +221,6 @@
                                             <i class="fas fa-users text-primary"></i>
                                             <div class="assignee-avatars">
                                                 <div th:each="assignee, iterStat : ${task.assignees}" 
-                                                     th:if="${iterStat.index < 3}" 
                                                      class="assignee-avatar-wrapper">
                                                     <img th:src="${assignee.avatarUrl}" 
                                                          th:alt="${assignee.fullName}" 
@@ -213,11 +229,6 @@
                                                          th:title="${assignee.fullName}">
                                                     <div class="assignee-status-indicator online"></div>
                                                 </div>
-                                                <div th:if="${task.assignees.size() > 3}" 
-                                                     class="assignee-count" 
-                                                     th:text="'+' + ${task.assignees.size() - 3}">
-                                                    +2
-                                                </div>
                                             </div>
                                         </div>
                                         
@@ -225,6 +236,8 @@
                                             <div class="date-icon-wrapper">
                                                 <i class="fas fa-calendar-days"></i>
                                             </div>
+                                            <span class="task-date" th:text="${task.startDate != null ? #temporals.format(task.startDate, 'dd/MM/yyyy') : 'Chưa có hạn'}">01/01/2023</span>
+                                            <span class="task-date-separator">-</span>
                                             <span class="task-date" th:text="${task.dueDate != null ? #temporals.format(task.dueDate, 'dd/MM/yyyy') : 'Chưa có hạn'}">31/12/2023</span>
                                         </div>
                                     </div>
@@ -232,7 +245,7 @@
                                     <!-- Middle Column -->
                                     <div class="task-middle-col">
                                         <div class="task-description-wrapper">
-                                            <p class="task-description" th:text="${task.description ?: 'Chưa có mô tả cho công việc này'}">
+                                            <p class="task-description formatted-description" th:text="${task.description ?: 'Chưa có mô tả cho công việc này'}">
                                                 Mô tả công việc
                                             </p>
                                             <div class="task-tags">
@@ -291,6 +304,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Modal thêm task mới -->
         <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -309,6 +323,11 @@
                             <div class="mb-3">
                                 <label for="taskDescription" class="form-label">Mô tả:</label>
                                 <textarea class="form-control" id="taskDescription" name="description" rows="3"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="taskStartDate" class="form-label">Ngày bắt đầu:</label>
+                                <input type="date" class="form-control" id="taskStartDate" name="startDate">
                             </div>
 
                             <div class="mb-3">
@@ -374,6 +393,12 @@
                                 <label for="editTaskDescription" class="form-label">Mô tả:</label>
                                 <textarea class="form-control" id="editTaskDescription" name="description" rows="3"></textarea>
                             </div>
+
+                            <div class="mb-3">
+                                <label for="editTaskStartDate" class="form-label">Ngày bắt đầu:</label>
+                                <input type="date" class="form-control" id="editTaskStartDate" name="startDate">
+                            </div>
+
 
                             <div class="mb-3">
                                 <label for="editTaskDueDate" class="form-label">Ngày đến hạn:</label>
@@ -462,6 +487,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Thêm section thông báo ở cuối cùng -->
         <div class="row mt-5">
             <div class="col-12">
@@ -523,6 +549,104 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal tài liệu dự án -->
+        <div class="modal fade" id="projectDocumentsModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-file-alt me-2 text-info"></i>Tài liệu đính kèm
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Upload form -->
+                        <form class="mb-4 p-3 bg-light rounded" id="uploadForm">
+                            <div class="d-flex align-items-center">
+                                <input type="file" class="form-control me-2" id="fileUpload">
+                                <button type="submit" class="btn btn-primary " >
+                                    <i class="fas fa-upload me-1"></i>
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Documents list -->
+                        <div class="documents-list">
+                            <div th:each="doc : ${project.attachments}" class="document-item p-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-file fa-lg text-info me-3"></i>
+                                        <div>
+                                            <h6 class="mb-0" th:text="${doc.originalFileName}">document.pdf</h6>
+                                            <small class="text-muted" th:text="${#temporals.format(doc.uploadedAt, 'dd/MM/yyyy HH:mm')}">
+                                                01/01/2024 12:00
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <a th:href="${doc.downloadUrl}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal thảo luận dự án -->
+        <div class="modal fade" id="projectDiscussionsModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-comments me-2 text-secondary"></i>Thảo luận dự án
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Comment form -->
+                        <form class="mb-4">
+                            <div class="form-group">
+                                <textarea class="form-control" rows="3" placeholder="Nhập nội dung thảo luận..."></textarea>
+                            </div>
+                            <div class="text-end mt-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-1"></i>Gửi
+                                </button>
+                            </div>
+                        </form>
+        
+                        <!-- Comments list -->
+                        <div class="comments-list">
+                            <div th:each="comment : ${project.comments}" class="comment-item mb-3">
+                                <div class="d-flex">
+                                    <img th:src="${comment.createdBy.avatarUrl}" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                    <div class="flex-grow-1">
+                                        <div class="bg-light p-3 rounded">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0" th:text="${comment.createdBy.fullName}">John Doe</h6>
+                                                <small class="text-muted" th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}">
+                                                    01/01/2024 12:00
+                                                </small>
+                                            </div>
+                                            <p class="mb-0" th:text="${comment.content}">Nội dung comment</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </content>
     <additionalJs>
         <script th:src="@{/js/projects/project-detail.js}"></script>

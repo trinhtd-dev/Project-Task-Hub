@@ -14,6 +14,7 @@ public class TaskCreateAndUpdateDTO {
     private Long id;
     private String name;
     private String description;
+    private LocalDate startDate;
     private LocalDate dueDate;
     private String status;
     private List<Long> assigneeIds;

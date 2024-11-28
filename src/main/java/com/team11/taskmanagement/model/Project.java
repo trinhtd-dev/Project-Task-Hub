@@ -99,6 +99,12 @@ public class Project {
     )
     private Set<User> members = new HashSet<>();
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Attachment> attachments = new HashSet<>();
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Comment> comments = new HashSet<>();
+
     public void addMember(User user) {
         members.add(user);
         user.getProjects().add(this);
@@ -200,5 +206,25 @@ public class Project {
     public void removeTask(Task task) {
         tasks.remove(task);
         task.setProject(null);
+    }
+
+    public void addAttachment(Attachment attachment) {
+        attachments.add(attachment);
+        attachment.setProject(this);
+    }
+
+    public void removeAttachment(Attachment attachment) {
+        attachments.remove(attachment);
+        attachment.setProject(null);
+    }
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setProject(this);
+    }
+
+    public void removeComment(Comment comment) {
+        comments.remove(comment);
+        comment.setProject(null);
     }
 }
