@@ -17,12 +17,10 @@
                             <div class="project-actions">
                                 <button class="btn btn-documents" document-project-button data-bs-toggle="modal" data-bs-target="#projectDocumentsModal">
                                     <i class="fas fa-file-alt me-1"></i>Tài liệu
-                                    <span class="badge bg-info" th:text="${project.attachments.size()}">0</span>
                                 </button>
                                 
-                                <button class="btn btn-discussions" data-bs-toggle="modal" data-bs-target="#projectDiscussionsModal">
+                                <button class="btn btn-discussions" discussion-project-button data-bs-toggle="modal" data-bs-target="#projectDiscussionsModal">
                                     <i class="fas fa-comments me-1"></i>Thảo luận
-                                    <span class="badge bg-secondary" th:text="${project.comments.size()}">0</span>
                                 </button>
                                 
                                 <a th:href="@{/projects/{id}/edit(id=${project.id})}" class="btn btn-edit">
@@ -236,7 +234,7 @@
                                             <div class="date-icon-wrapper">
                                                 <i class="fas fa-calendar-days"></i>
                                             </div>
-                                            <span class="task-date" th:text="${task.startDate != null ? #temporals.format(task.startDate, 'dd/MM/yyyy') : 'Chưa có hạn'}">01/01/2023</span>
+                                            <span class="task-date" th:text="${task.startDate != null ? #temporals.format(task.startDate, 'dd/MM/yyyy') : 'Ch��a có hạn'}">01/01/2023</span>
                                             <span class="task-date-separator">-</span>
                                             <span class="task-date" th:text="${task.dueDate != null ? #temporals.format(task.dueDate, 'dd/MM/yyyy') : 'Chưa có hạn'}">31/12/2023</span>
                                         </div>
@@ -331,7 +329,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="taskDueDate" class="form-label">Ngày đến hạn:</label>
+                                <label for="taskDueDate" class="form-label">Ngày đến h���n:</label>
                                 <input type="date" class="form-control" id="taskDueDate" name="dueDate">
                             </div>
 
@@ -562,10 +560,10 @@
                     </div>
                     <div class="modal-body">
                         <!-- Upload form -->
-                        <form class="mb-4 p-3 bg-light rounded" id="uploadForm">
+                        <form class="mb-4 bg-light rounded" id="uploadForm">
                             <div class="d-flex align-items-center">
                                 <input type="file" class="form-control me-2" id="fileUpload">
-                                <button type="submit" class="btn btn-primary " >
+                                <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-upload me-1"></i>
                                 </button>
                             </div>
@@ -573,27 +571,6 @@
                         
                         <!-- Documents list -->
                         <div class="documents-list">
-                            <div th:each="doc : ${project.attachments}" class="document-item p-3 border-bottom">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-file fa-lg text-info me-3"></i>
-                                        <div>
-                                            <h6 class="mb-0" th:text="${doc.originalFileName}">document.pdf</h6>
-                                            <small class="text-muted" th:text="${#temporals.format(doc.uploadedAt, 'dd/MM/yyyy HH:mm')}">
-                                                01/01/2024 12:00
-                                            </small>
-                                        </div>
-                                    </div>
-                                    <div class="btn-group">
-                                        <a th:href="${doc.downloadUrl}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-download"></i>
-                                        </a>
-                                        <button class="btn btn-sm btn-outline-danger">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -606,13 +583,13 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">
-                            <i class="fas fa-comments me-2 text-secondary"></i>Thảo luận dự án
+                            <i class="fas fa-comments me-2 text-secondary"></i>Thảo luận
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <!-- Comment form -->
-                        <form class="mb-4">
+                        <form class="comment-form">
                             <div class="form-group">
                                 <textarea class="form-control" rows="3" placeholder="Nhập nội dung thảo luận..."></textarea>
                             </div>
@@ -625,22 +602,7 @@
         
                         <!-- Comments list -->
                         <div class="comments-list">
-                            <div th:each="comment : ${project.comments}" class="comment-item mb-3">
-                                <div class="d-flex">
-                                    <img th:src="${comment.createdBy.avatarUrl}" class="rounded-circle me-2" style="width: 40px; height: 40px;">
-                                    <div class="flex-grow-1">
-                                        <div class="bg-light p-3 rounded">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <h6 class="mb-0" th:text="${comment.createdBy.fullName}">John Doe</h6>
-                                                <small class="text-muted" th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}">
-                                                    01/01/2024 12:00
-                                                </small>
-                                            </div>
-                                            <p class="mb-0" th:text="${comment.content}">Nội dung comment</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>

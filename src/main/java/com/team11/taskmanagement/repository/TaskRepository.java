@@ -23,8 +23,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("SELECT DISTINCT t FROM Task t " +
            "LEFT JOIN FETCH t.project " +
            "LEFT JOIN FETCH t.assignees " +
-           "LEFT JOIN FETCH t.attachments " +
-           "LEFT JOIN FETCH t.comments " +
            "WHERE :user MEMBER OF t.assignees")
     List<Task> findByAssigneesContaining(@Param("user") User user);
 }

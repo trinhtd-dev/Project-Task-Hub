@@ -42,7 +42,7 @@ function confirmDeleteModal(itemName) {
     return new Promise((resolve) => {
         // Create modal container div
         const modalContainer = document.createElement('div');
-        modalContainer.classList.add('modal', 'fade');
+        modalContainer.classList.add('modal', 'fade', 'modal-delete-confirm');
         modalContainer.setAttribute('tabindex', '-1');
         modalContainer.setAttribute('role', 'dialog');
         modalContainer.setAttribute('aria-hidden', 'true');
@@ -53,7 +53,7 @@ function confirmDeleteModal(itemName) {
 
         // Create modal content div
         const modalContent = document.createElement('div');
-        modalContent.classList.add('modal-content');
+        modalContent.classList.add('modal-content', 'modal-delete-content');
 
         modalContent.innerHTML = `
             <div class="modal-header">

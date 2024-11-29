@@ -39,8 +39,6 @@ public interface ProjectMapper {
 
     @Mapping(target = "members", source = "members")
     @Mapping(target = "tasks", source = "tasks")
-    @Mapping(target = "attachments", source = "attachments")
-    @Mapping(target = "comments", source = "comments")
     ProjectResponseDTO toResponseDTO(Project project);
 
     @Mapping(target = "id", ignore = true)

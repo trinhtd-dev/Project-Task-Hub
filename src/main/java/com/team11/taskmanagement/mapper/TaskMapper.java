@@ -39,8 +39,6 @@ public interface TaskMapper {
     @Mapping(target = "projectId", source = "project.id")
     @Mapping(target = "projectName", source = "project.name")
     @Mapping(target = "assignees", source = "assignees")
-    @Mapping(target = "attachments", source = "attachments")
-    @Mapping(target = "comments", source = "comments")
     TaskResponseDTO toResponseDTO(Task task);
 
     List<TaskResponseDTO> toResponseDTOs(List<Task> tasks);

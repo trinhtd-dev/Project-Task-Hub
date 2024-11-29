@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             <div>
                                 <h6 class="mb-0">${attachment.originalFileName}</h6>
                                 <small class="text-muted">
-                                    ${fileSize} KB • Uploaded by ${attachment.uploadedBy.fullName} • ${uploadDate}
+                                    ${fileSize} KB • Uploaded by ${attachment.uploadedBy.name} • ${uploadDate}
                                 </small>
                             </div>
                         </div>
@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const file = fileInput.files[0];
         
         if (!file) {
-            toast.show('warning', 'Vui lòng chọn tập tin');
+            toast.show('error', 'Vui lòng chọn tập tin');
             return;
         }
         
@@ -341,7 +341,9 @@ document.addEventListener("DOMContentLoaded", function() {
                             <i class="fas fa-file fa-lg text-info me-3"></i>
                             <div>
                                 <h6 class="mb-0">${attachment.originalFileName}</h6>
-                                <small class="text-muted">${new Date().toLocaleString()}</small>
+                                <small class="text-muted">
+                                    ${new Date().toLocaleString()} by ${attachment.uploadedBy?.name || 'Unknown'}
+                                </small>
                             </div>
                         </div>
                         <div class="btn-group">
@@ -368,6 +370,300 @@ document.addEventListener("DOMContentLoaded", function() {
         } catch (error) {
             console.error('Lỗi:', error);
             toast.show('error', 'Có lỗi xảy ra khi tải lên tập tin');
+        }
+    });
+
+
+    // Comments handling
+    const commentForm = document.querySelector('#projectDiscussionsModal form');
+    const commentsList = document.querySelector('.comments-list');
+
+    // show project when click discussion button
+    const discussionProjectBtn = document.querySelector('[discussion-project-button]');
+    discussionProjectBtn.addEventListener('click', async function() {
+        const modal = new bootstrap.Modal(projectDiscussionsModal);
+        const projectId = document.querySelector('[data-project-id]').getAttribute('data-project-id');
+        
+        try {
+            // Fetch comments from API
+            const response = await fetch(`/api/comments/project/${projectId}`, {
+                headers: {
+                    [header]: token
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Có lỗi xảy ra khi tải bình luận');
+            }
+
+            const comments = await response.json();
+            const commentsList = document.querySelector('.comments-list');
+            
+            // Clear existing comments
+            commentsList.innerHTML = '';
+            
+            // Add comments to list
+            comments.forEach(comment => {
+                const commentHtml = `
+                    <div class="comment-item mb-3" data-comment-id="${comment.id}">
+                        <div class="d-flex">
+                            <img src="${comment.createdBy?.avatarUrl || '/images/default-avatar.png'}" 
+                                 class="rounded-circle me-2" 
+                                 style="width: 40px; height: 40px;">
+                            <div class="flex-grow-1">
+                                <div class="bg-light p-3 rounded">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0">${comment.createdBy?.name || 'Unknown User'}</h6>
+                                        <div class="d-flex align-items-center">
+                                            <small class="text-muted me-2">
+                                                ${comment.updatedAt ? 
+                                                  `Đã chỉnh sửa: ${new Date(comment.updatedAt).toLocaleString('vi-VN')}` :
+                                                  new Date(comment.createdAt).toLocaleString('vi-VN')}
+                                            </small>
+                                            <div class="dropdown">
+                                                <button class="btn btn-link btn-sm p-0" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <button class="dropdown-item edit-comment" 
+                                                                data-comment-id="${comment.id}">
+                                                            <i class="fas fa-edit me-1"></i>Sửa
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <button class="dropdown-item delete-comment text-danger" 
+                                                                data-comment-id="${comment.id}">
+                                                            <i class="fas fa-trash-alt me-1"></i>Xóa
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="mb-0">${comment.content}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                commentsList.insertAdjacentHTML('beforeend', commentHtml);
+            });
+
+            // Scroll xuống cuối để xem tin nhắn cũ nhất
+            commentsList.scrollTop = commentsList.scrollHeight;
+            projectDiscussionsModal.addEventListener('hidden.bs.modal', function () {
+                document.body.classList.remove('modal-open');
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+            });
+            modal.show();
+            
+        } catch (error) {
+            console.error('Error:', error);
+            toast.show('error', 'Có lỗi xảy ra khi tải bình luận');
+        }
+    });
+
+    // Submit new comment
+    commentForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const commentContent = this.querySelector('textarea').value;
+        if (!commentContent.trim()) {
+            toast.show('error ', 'Vui lòng nhập nội dung bình luận');
+            return;
+        }
+
+        const commentData = {
+            content: commentContent,
+            projectId: projectId
+        };
+
+        try {
+            const response = await fetch('/api/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                },
+                body: JSON.stringify(commentData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Có lỗi xảy ra');
+            }
+
+            
+            const comment = await response.json();
+            
+            console.log(comment);
+            // Add new comment to the list
+            const commentHtml = `
+                <div class="comment-item mb-3" data-comment-id="${comment.id}">
+                    <div class="d-flex">
+                        <img src="${comment.createdBy?.avatarUrl || '/images/default-avatar.png'}" 
+                             class="rounded-circle me-2" 
+                             style="width: 40px; height: 40px;">
+                        <div class="flex-grow-1">
+                            <div class="bg-light p-3 rounded">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">${comment.createdBy?.name || 'Unknown User'}</h6>
+                                    <div class="d-flex align-items-center">
+                                        <small class="text-muted me-2">
+                                            ${comment.createdAt ? new Date(comment.createdAt).toLocaleString('vi-VN') : 'Unknown time'}
+                                        </small>
+                                        <div class="dropdown">
+                                            <button class="btn btn-link btn-sm p-0" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <button class="dropdown-item edit-comment" 
+                                                            data-comment-id="${comment.id}">
+                                                        <i class="fas fa-edit me-1"></i>Sửa
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item delete-comment text-danger" 
+                                                            data-comment-id="${comment.id}">
+                                                        <i class="fas fa-trash-alt me-1"></i>Xóa
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="mb-0">${comment.content}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            commentsList.insertAdjacentHTML('afterbegin', commentHtml);
+            this.reset();
+            // Scroll to top sau khi thêm comment mới
+            commentsList.scrollTop = 0;
+            toast.show('success', 'Đã thêm bình luận');
+            
+
+        } catch (error) {
+            console.error('Error:', error);
+            toast.show('error', 'Có lỗi xảy ra khi thêm bình luận');
+        }
+    });
+
+    // Edit comment
+    document.addEventListener('click', async function(e) {
+        if (e.target.classList.contains('edit-comment')) {
+            const commentId = e.target.dataset.commentId;
+            const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+            const contentElement = commentElement.querySelector('p');
+            const originalContent = contentElement.textContent;
+
+            // Create edit form
+            const editForm = document.createElement('div');
+            editForm.innerHTML = `
+                <div class="edit-comment-form mt-2">
+                    <textarea class="form-control mb-2">${originalContent}</textarea>
+                    <div class="text-end">
+                        <button class="btn btn-secondary btn-sm cancel-edit me-2">Hủy</button>
+                        <button class="btn btn-primary btn-sm save-edit">Lưu</button>
+                    </div>
+                </div>
+            `;
+
+            contentElement.style.display = 'none';
+            contentElement.after(editForm);
+
+            // Handle cancel edit
+            editForm.querySelector('.cancel-edit').addEventListener('click', function() {
+                contentElement.style.display = 'block';
+                editForm.remove();
+            });
+
+            // Handle save edit
+            editForm.querySelector('.save-edit').addEventListener('click', async function() {
+                const newContent = editForm.querySelector('textarea').value;
+                if (!newContent.trim()) {
+                    toast.show('warning', 'Nội dung không được để trống');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/comments/${commentId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            [header]: token
+                        },
+                        body: JSON.stringify({
+                            content: newContent,
+                            projectId: projectId
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Có lỗi xảy ra');
+                    }
+
+                    const updatedComment = await response.json();
+                    
+                    // Cập nhật nội dung và thời gian
+                    const commentDiv = document.querySelector(`[data-comment-id="${commentId}"]`);
+                    const contentElement = commentDiv.querySelector('p');
+                    const timeElement = commentDiv.querySelector('.text-muted');
+                    
+                    contentElement.textContent = updatedComment.content;
+                    // Format thời gian một cách an toàn
+                    if (updatedComment.updatedAt) {
+                        timeElement.textContent = `Đã chỉnh sửa: ${new Date(updatedComment.updatedAt).toLocaleString('vi-VN')}`;
+                    }
+                    
+                    contentElement.style.display = 'block';
+                    editForm.remove();
+                    toast.show('success', 'Đã cập nhật bình luận');
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    toast.show('error', 'Có lỗi xảy ra khi cập nhật bình luận');
+                }
+            });
+        }
+    });
+
+    // Delete comment
+    document.addEventListener('click', async function(e) {
+        if (e.target.classList.contains('delete-comment')) {
+            const commentId = e.target.dataset.commentId;
+            const confirmed = await confirmDeleteModal('bình luận');
+            
+            if (confirmed) {
+                try {
+                    const response = await fetch(`/api/comments/${commentId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            [header]: token
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Có lỗi xảy ra');
+                    }
+
+                    // Remove comment from UI
+                    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+                    commentElement.remove();
+                    
+                    toast.show('success', 'Đã xóa bình luận');
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    toast.show('error', 'Có lỗi xảy ra khi xóa bình luận');
+                }
+            }
         }
     });
 });

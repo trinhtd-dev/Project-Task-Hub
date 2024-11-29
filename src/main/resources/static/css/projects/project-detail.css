@@ -1095,7 +1095,7 @@
 }
 
 /* Modal Styles */
-.modal-content {
+.modal-content.custom-modal-content {
     border: none;
     border-radius: 1rem;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
@@ -1315,5 +1315,126 @@
 
     .project-actions .btn {
         width: 100%;
+    }
+}
+
+/* Styles cho modal documents và discussions */
+#projectDocumentsModal .modal-content,
+#projectDiscussionsModal .modal-content {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+#projectDocumentsModal .modal-dialog,
+#projectDiscussionsModal .modal-dialog {
+    max-width: 800px;
+    margin: 1.75rem auto;
+}
+
+#projectDocumentsModal .modal-header,
+#projectDiscussionsModal .modal-header {
+    padding: 1rem 1.5rem;
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#projectDocumentsModal .modal-body,
+#projectDiscussionsModal .modal-body {
+    padding: 0;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    height: calc(90vh - 60px);
+}
+
+/* Style cho form upload và comment */
+#projectDocumentsModal #uploadForm,
+#projectDiscussionsModal .comment-form {
+    padding: 1rem 1.5rem;
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    border-bottom: 1px solid #dee2e6;
+    margin: 0;
+}
+
+/* Điều chỉnh vùng chứa danh sách */
+#projectDocumentsModal .documents-list,
+#projectDiscussionsModal .comments-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    margin-bottom: 0;
+}
+
+/* Style cho thanh cuộn */
+#projectDocumentsModal .documents-list::-webkit-scrollbar,
+#projectDiscussionsModal .comments-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+#projectDocumentsModal .documents-list::-webkit-scrollbar-track,
+#projectDiscussionsModal .comments-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+#projectDocumentsModal .documents-list::-webkit-scrollbar-thumb,
+#projectDiscussionsModal .comments-list::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+#projectDocumentsModal .documents-list::-webkit-scrollbar-thumb:hover,
+#projectDiscussionsModal .comments-list::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Style cho comment item */
+#projectDiscussionsModal .comment-item {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+}
+
+#projectDiscussionsModal .comment-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    #projectDocumentsModal .modal-dialog,
+    #projectDiscussionsModal .modal-dialog {
+        max-width: 95%;
+        margin: 1rem auto;
+    }
+
+    #projectDocumentsModal .modal-body,
+    #projectDiscussionsModal .modal-body {
+        height: calc(100vh - 60px);
+    }
+}
+
+@media (max-width: 576px) {
+    #projectDocumentsModal .modal-body,
+    #projectDiscussionsModal .modal-body {
+        height: calc(100vh - 56px);
+    }
+
+    #projectDocumentsModal #uploadForm,
+    #projectDiscussionsModal .comment-form {
+        padding: 0.75rem 1rem;
+    }
+
+    #projectDocumentsModal .documents-list,
+    #projectDiscussionsModal .comments-list {
+        padding: 1rem;
     }
 }
