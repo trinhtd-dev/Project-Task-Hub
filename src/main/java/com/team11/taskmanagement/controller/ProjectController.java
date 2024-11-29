@@ -31,6 +31,7 @@ import com.team11.taskmanagement.service.ProjectAnnouncementService;
 import com.team11.taskmanagement.service.ProjectService;
 import com.team11.taskmanagement.service.TaskService;
 import com.team11.taskmanagement.service.UserService;
+import com.team11.taskmanagement.dto.project.ProjectResponseDTO;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -54,10 +55,15 @@ public class ProjectController {
     // Show list projects
     @GetMapping
     public String listProjects(Model model) {
-        log.info("Show list projects");
-        model.addAttribute("currentUrl", "/projects");
-        List<Project> projects = projectService.getAllProjects();
-        model.addAttribute("projects", projects);
+        if (userService.isAdmin()) {
+            model.addAttribute("currentUrl", "/projects");
+            List<Project> projects = projectService.getAllProjects();
+            model.addAttribute("projects", projects);
+        } else {
+            model.addAttribute("currentUrl", "/projects");
+            List<ProjectResponseDTO> projects = projectService.getProjectsByUserId(userService.getCurrentUser().getId());
+            model.addAttribute("projects", projects);
+        }
         return "projects/index"; 
     }
 

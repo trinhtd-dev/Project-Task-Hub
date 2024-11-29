@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
         name: taskElement.querySelector('.task-name').textContent,
         description: taskElement.dataset.description,
         status: taskElement.querySelector('.task-status-badge').dataset.status,
+        startDate: taskElement.querySelector('.task-start-date')?.dataset.date,
         dueDate: taskElement.querySelector('.task-date').dataset.date,
         assignees: Array.from(taskElement.querySelectorAll('.task-assignees img')).map(img => ({
             id: img.dataset.userId,
@@ -185,6 +186,10 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="task-info">
                 <div class="task-metadata">
+                    <span class="task-start-date" data-date="${task.startDate}">
+                        <i class="far fa-calendar"></i> ${formatDate(task.startDate)}
+                    </span>
+                    <span class="task-date-separator">-</span>
                     <span class="task-date" data-date="${task.dueDate}">
                         <i class="far fa-calendar-alt"></i> ${formatDate(task.dueDate)}
                     </span>
@@ -216,6 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('taskName').value = task.name;
         document.getElementById('taskDescription').value = task.description || '';
         document.getElementById('taskStatus').value = task.status || 'TODO';
+        document.getElementById('taskStartDate').value = task.startDate;
         document.getElementById('taskDueDate').value = task.dueDate;
         
         document.querySelectorAll('.task-assignee').forEach(checkbox => {
@@ -288,11 +294,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 name: task.name,
                 description: task.description,
                 status: task.status || 'TODO',
+                startDate: task.startDate,
                 dueDate: task.dueDate,
                 assigneeIds: task.assignees.map(a => a.id)
             }))
         };
-        
 
         try {
             const projectId = projectForm.getAttribute('data-project-id');

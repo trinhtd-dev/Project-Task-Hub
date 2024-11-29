@@ -132,25 +132,27 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Delete project
     const deleteProjectBtn = document.querySelector('[delete-project-button]');
-    deleteProjectBtn.addEventListener('click', async function() {
-        const confirmed = await confirmDeleteModal('dự án');
-        if (confirmed) {
-            try {
-                const response = await fetch(`/projects/${projectId}/delete`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        [header]: token
-                    }
-                });
-                window.location.href = '/projects';
-                toast.show('success', 'Dự án đã được chuyển đến thùng rác');
-            } catch (error) {
-                console.error('Error:', error);
-                toast.show('error', 'Có lỗi xảy ra khi xóa dự án');
+    if (deleteProjectBtn) {
+        deleteProjectBtn.addEventListener('click', async function() {
+            const confirmed = await confirmDeleteModal('dự án');
+            if (confirmed) {
+                try {
+                    const response = await fetch(`/projects/${projectId}/delete`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            [header]: token
+                        }
+                    });
+                    window.location.href = '/projects';
+                    toast.show('success', 'Dự án đã được chuyển đến thùng rác');
+                } catch (error) {
+                    console.error('Error:', error);
+                    toast.show('error', 'Có lỗi xảy ra khi xóa dự án');
+                }
             }
-        }
-    });
+        });
+    }
 
     // Delete task
     const deleteTaskBtns = document.querySelectorAll('.task-btn-delete');
@@ -308,7 +310,8 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <i class="fas fa-download"></i>
                             </a>
                             <button class="btn btn-sm btn-outline-danger delete-attachment" 
-                                    data-attachment-id="${attachment.id}">
+                                    data-attachment-id="${attachment.id}"
+                                    sec:authorize="hasRole('ADMIN')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -486,79 +489,80 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     // Upload file
-    uploadForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const fileInput = document.getElementById('fileUpload');
-        const file = fileInput.files[0];
-        
-        if (!file) {
-            toast.show('error', 'Vui lòng chọn tập tin');
-            return;
-        }
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        formData.append(currentContext.type === 'project' ? 'projectId' : 'taskId', currentContext.id);
-        
-        try {
-            const response = await fetch('/api/attachments/upload', {
-                method: 'POST',
-                headers: {
-                    [header]: token
-                },
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error('Upload failed');
+    if(uploadForm){
+        uploadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('fileUpload');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                toast.show('error', 'Vui lòng chọn tập tin');
+                return;
             }
             
-            const attachment = await response.json();
+            const formData = new FormData();
+            formData.append('file', file);
             
-            // Add new file to the list
-            const docHtml = `
-                <div class="document-item p-3 border-bottom" data-attachment-id="${attachment.id}">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-file fa-lg text-info me-3"></i>
-                            <div>
-                                <h6 class="mb-0">${attachment.originalFileName}</h6>
-                                <small class="text-muted">
-                                    ${(attachment.fileSize / 1024).toFixed(2)} KB • 
-                                    Uploaded by ${attachment.uploadedBy.name} • 
-                                    ${new Date(attachment.uploadedAt).toLocaleString('vi-VN')}
-                                </small>
+            formData.append(currentContext.type === 'project' ? 'projectId' : 'taskId', currentContext.id);
+            
+            try {
+                const response = await fetch('/api/attachments/upload', {
+                    method: 'POST',
+                    headers: {
+                        [header]: token
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+                
+                const attachment = await response.json();
+                
+                // Add new file to the list
+                const docHtml = `
+                    <div class="document-item p-3 border-bottom" data-attachment-id="${attachment.id}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file fa-lg text-info me-3"></i>
+                                <div>
+                                    <h6 class="mb-0">${attachment.originalFileName}</h6>
+                                    <small class="text-muted">
+                                        ${(attachment.fileSize / 1024).toFixed(2)} KB • 
+                                        Uploaded by ${attachment.uploadedBy.name} • 
+                                        ${new Date(attachment.uploadedAt).toLocaleString('vi-VN')}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="btn-group">
+                                <a href="${attachment.filePath}" 
+                                class="btn btn-sm btn-outline-primary" 
+                                target="_blank"
+                                download="${attachment.originalFileName}">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger delete-attachment" 
+                                        data-attachment-id="${attachment.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="btn-group">
-                            <a href="${attachment.filePath}" 
-                               class="btn btn-sm btn-outline-primary" 
-                               target="_blank"
-                               download="${attachment.originalFileName}">
-                                <i class="fas fa-download"></i>
-                            </a>
-                            <button class="btn btn-sm btn-outline-danger delete-attachment" 
-                                    data-attachment-id="${attachment.id}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
                     </div>
-                </div>
-            `;
-            documentsList.insertAdjacentHTML('afterbegin', docHtml);
-            
-            // Reset form
-            fileInput.value = '';
-            toast.show('success', 'Tải lên tập tin thành công');
-            
-        } catch (error) {
-            console.error('Error:', error);
-            toast.show('error', 'Có lỗi xảy ra khi tải lên tập tin');
-        }
-    });
-
+                `;
+                documentsList.insertAdjacentHTML('afterbegin', docHtml);
+                
+                // Reset form
+                fileInput.value = '';
+                toast.show('success', 'Tải lên tập tin thành công');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                toast.show('error', 'Có lỗi xảy ra khi tải lên tập tin');
+            }
+        });
+    }
     // Delete attachment
     document.addEventListener('click', async function(e) {
         if (e.target.classList.contains('delete-attachment')) {
@@ -977,4 +981,54 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
+
+    // Search and filter functionality
+    const searchInput = document.getElementById('taskSearch');
+    const statusFilter = document.getElementById('statusFilter');
+    const tagFilter = document.getElementById('tagFilter');
+
+    // Add event listeners
+    searchInput?.addEventListener('input', filterTasks);
+    statusFilter?.addEventListener('change', filterTasks);
+    tagFilter?.addEventListener('change', filterTasks);
+
+    function filterTasks() {
+        const searchTerm = searchInput.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const statusValue = statusFilter.value;
+        const tagValue = tagFilter.value;
+        
+        const taskItems = document.querySelectorAll('.task-item');
+        
+        taskItems.forEach(task => {
+            const taskName = task.querySelector('.task-title').textContent
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+            const taskDescription = task.querySelector('.task-description')?.textContent
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+            
+            // Get status from the status badge
+            const statusBadge = task.querySelector('.status-badge');
+            let status = '';
+            if (statusBadge.classList.contains('status-todo')) status = 'TODO';
+            else if (statusBadge.classList.contains('status-progress')) status = 'IN_PROGRESS';
+            else if (statusBadge.classList.contains('status-review')) status = 'REVIEW';
+            else if (statusBadge.classList.contains('status-done')) status = 'DONE';
+            
+            // Get tag from the task tag span
+            const tagElement = task.querySelector('.task-tag');
+            const tag = tagElement ? tagElement.textContent.toUpperCase() : '';
+
+            // Check if task matches all filters
+            const matchesSearch = taskName.includes(searchTerm) || 
+                                (taskDescription && taskDescription.includes(searchTerm));
+            const matchesStatus = !statusValue || status === statusValue;
+            const matchesTag = !tagValue || tag === tagValue;
+            
+            // Show/hide task based on filter results
+            task.style.display = matchesSearch && matchesStatus && matchesTag ? 'block' : 'none';
+        });
+    }
 });

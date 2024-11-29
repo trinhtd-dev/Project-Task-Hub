@@ -115,3 +115,48 @@
 .dropdown-divider {
     margin: 0.5rem 0;
 }
+
+/* Search and filter styles */
+.input-group-text {
+    background-color: transparent;
+    border-right: none;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: none;
+}
+
+.form-select {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.form-select:hover {
+    border-color: #0d6efd;
+}
+
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: none;
+}
+
+/* Animation for filtering */
+.col {
+    transition: opacity 0.3s ease;
+}
+
+.col[style*="display: none"] {
+    opacity: 0;
+}
+
+.col[style*="display: block"] {
+    opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .input-group, .form-select {
+        margin-bottom: 0.5rem;
+    }
+}

@@ -1438,3 +1438,42 @@
         padding: 1rem;
     }
 }
+
+/* Search and filter styles */
+.search-box {
+    position: relative;
+    min-width: 200px;
+}
+
+.search-box input {
+    padding-right: 30px;
+}
+
+.search-box::after {
+    content: '\f002';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.form-select-sm {
+    min-width: 140px;
+}
+
+/* Task item visibility transition */
+.task-item {
+    transition: opacity 0.3s ease;
+}
+
+.task-item[style*="display: none"] {
+    opacity: 0;
+}
+
+.task-item[style*="display: block"] {
+    opacity: 1;
+}

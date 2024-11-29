@@ -35,7 +35,10 @@
             <div class="d-flex align-items-center">
                 <i class="bi bi-bell text-muted me-4"></i>
                 <a href="/users/profile" class="text-decoration-none">
-                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold" style="width: 32px; height: 32px;">
+                    <div 
+                        th:text="${#authentication.principal.username}"
+                        th:class="${currentUrl == '/users/profile' ? 'bg-primary d-flex align-items-center justify-content-center text-white fw-bold' : 'bg-light d-flex align-items-center justify-content-center text-muted fw-bold'}" 
+                        style="width: 60px; height: 40px; border-radius: 30%;">
                         Me
                     </div>
                 </a>
@@ -54,22 +57,27 @@
                             <i class="bi bi-grid me-2"></i> Tổng quan
                         </a>
                     </li>
-                    <li class="nav-item mb-2">
+                    <li class="nav-item mb-2" sec:authorize="hasRole('ROLE_ADMIN')">
                         <a href="/projects" th:class="${currentUrl == '/projects' ? 'nav-link d-flex align-items-center px-4 py-2 text-primary bg-light rounded-3' : 'nav-link d-flex align-items-center px-4 py-2 text-muted hover-bg-light rounded-3'}">
                             <i class="bi bi-list-task me-2"></i> Quản lý dự án
                         </a>
                     </li>
-                    <li class="nav-item mb-2">
-                        <a href="/tasks" th:class="${currentUrl == '/tasks' ? 'nav-link d-flex align-items-center px-4 py-2 text-primary bg-light rounded-3' : 'nav-link d-flex align-items-center px-4 py-2 text-muted hover-bg-light rounded-3'}">
-                            <i class="bi bi-check-circle me-2"></i> Nhiệm vụ của tôi
+                    <li class="nav-item mb-2" sec:authorize="!hasRole('ROLE_ADMIN')">
+                        <a href="/projects" th:class="${currentUrl == '/projects' ? 'nav-link d-flex align-items-center px-4 py-2 text-primary bg-light rounded-3' : 'nav-link d-flex align-items-center px-4 py-2 text-muted hover-bg-light rounded-3'}">
+                            <i class="bi bi-list-task me-2"></i> Danh sách dự án
                         </a>
                     </li>
                     <li class="nav-item mb-2">
+                        <a href="/tasks" th:class="${currentUrl == '/tasks' ? 'nav-link d-flex align-items-center px-4 py-2 text-primary bg-light rounded-3' : 'nav-link d-flex align-items-center px-4 py-2 text-muted hover-bg-light rounded-3'}">
+                            <i class="bi bi-check-circle me-2"></i> Danh sách công việc
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2" sec:authorize="hasRole('ADMIN')">
                         <a href="/users" th:class="${currentUrl == '/users' ? 'nav-link d-flex align-items-center px-4 py-2 text-primary bg-light rounded-3' : 'nav-link d-flex align-items-center px-4 py-2 text-muted hover-bg-light rounded-3'}">
                             <i class="bi bi-person me-2"></i> Quản lí tài khoản
                         </a>
                     </li>
-                    <li class="nav-item mb-2">
+                    <li class="nav-item mb-2" sec:authorize="hasRole('ADMIN')">
                         <a href="/projects/trash" th:class="${currentUrl == '/projects/trash' ? 'nav-link d-flex align-items-center px-4 py-2 text-primary bg-light rounded-3' : 'nav-link d-flex align-items-center px-4 py-2 text-muted hover-bg-light rounded-3'}">
                             <i class="bi bi-trash me-2"></i> Thùng rác
                         </a>

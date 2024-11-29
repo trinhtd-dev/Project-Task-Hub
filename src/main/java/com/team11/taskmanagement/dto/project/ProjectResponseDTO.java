@@ -12,7 +12,7 @@ import com.team11.taskmanagement.dto.user.UserSummaryDTO;
 import com.team11.taskmanagement.model.ProjectPriority;
 import com.team11.taskmanagement.model.ProjectStatus;
 import com.team11.taskmanagement.model.TagProject;
-
+import com.team11.taskmanagement.model.TaskStatus;
 import lombok.Data;
 
 @Data
@@ -31,4 +31,14 @@ public class ProjectResponseDTO {
     private LocalDateTime updatedAt;
     private Set<AttachmentResponseDTO> attachments;
     private Set<CommentResponseDTO> comments;
+
+    public int getCompletedTasksCount() {
+        return (int) tasks.stream()
+                .filter(task -> task.getStatus() == TaskStatus.DONE)
+                .count();
+    }
+
+    public int getTasksCount() {
+        return tasks.size();
+    }
 }

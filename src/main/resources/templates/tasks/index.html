@@ -18,6 +18,64 @@
                             </h5>
                         </div>
                         
+                        <!-- Thêm phần tìm kiếm và bộ lọc -->
+                        <div class="filters-section mb-4">
+                            <div class="row g-3">
+                                <!-- Search box -->
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        <input type="text" id="taskSearch" class="form-control" placeholder="Tìm kiếm công việc...">
+                                    </div>
+                                </div>
+
+                                <!-- Project filter -->
+                                <div class="col-md-2">
+                                    <select class="form-select" id="projectFilter">
+                                        <option value="">Tất cả dự án</option>
+                                        <option th:each="project : ${projects}" 
+                                                th:value="${project.id}"
+                                                th:text="${project.name}">Tên dự án</option>
+                                    </select>
+                                </div>
+
+                                <!-- Status filter -->
+                                <div class="col-md-2">
+                                    <select class="form-select" id="statusFilter">
+                                        <option value="">Tất cả trạng thái</option>
+                                        <option value="TODO">Chưa bắt đầu</option>
+                                        <option value="IN_PROGRESS">Đang thực hiện</option>
+                                        <option value="REVIEW">Đang xem xét</option>
+                                        <option value="DONE">Hoàn thành</option>
+                                    </select>
+                                </div>
+
+                                <!-- Tag filter -->
+                                <div class="col-md-2">
+                                    <select class="form-select" id="tagFilter">
+                                        <option value="">Tất cả tag</option>
+                                        <option value="FRONTEND">Frontend</option>
+                                        <option value="BACKEND">Backend</option>
+                                        <option value="DATABASE">Database</option>
+                                        <option value="TESTING">Testing</option>
+                                        <option value="DOCUMENTATION">Documentation</option>
+                                    </select>
+                                </div>
+
+                                <!-- Due date filter -->
+                                <div class="col-md-2">
+                                    <select class="form-select" id="dueDateFilter">
+                                        <option value="">Tất cả thời hạn</option>
+                                        <option value="overdue">Quá hạn</option>
+                                        <option value="today">Hôm nay</option>
+                                        <option value="tomorrow">Ngày mai</option>
+                                        <option value="week">Tuần này</option>
+                                        <option value="month">Tháng này</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <!-- Task list -->
                         <div class="task-list">
                             <div th:each="task : ${tasks}" class="task-item" th:divTask="${task.id}">
@@ -26,7 +84,7 @@
                                     <div class="task-left-col">
                                         <div class="task-header-group">
                                             <h6 class="task-title" th:text="${task.name}">Thiết kế giao diện</h6>
-                                            <span th:if="${task.dueDate != null && task.dueDate.isBefore(T(java.time.LocalDate).now())}" 
+                                            <span th:if="${task.dueDate != null and task.dueDate.isBefore(T(java.time.LocalDate).now()) and task.status.name() != 'DONE'}"
                                                   class="task-badge task-badge-overdue">
                                                 <i class="fas fa-exclamation-circle me-1"></i>
                                                 Quá hạn
@@ -35,33 +93,20 @@
                                         
                                         <!-- Add Assignees Section -->
                                         <div class="task-assignees-group">
+                                            <div class="assignee-icon-wrapper">
+                                                <i class="fas fa-users me-1"></i>
+                                            </div>
                                             <div class="assignee-avatars">
                                                 <div th:each="assignee, iterStat : ${task.assignees}" 
-                                                     class="assignee-avatar-wrapper"
-                                                     th:if="${iterStat.index < 3}">
+                                                     class="assignee-avatar-wrapper">
                                                     <img th:src="${assignee.avatarUrl}"
                                                          th:alt="${assignee.name}"
                                                          class="assignee-avatar"
                                                          th:title="${assignee.name}">
                                                 </div>
-                                                <div class="assignee-count" 
-                                                     th:if="${task.assignees.size() > 3}"
-                                                     th:text="${'+' + (task.assignees.size() - 3)}">
-                                                    +2
-                                                </div>
                                             </div>
                                         </div>
                                         
-                                        <!-- Project Link -->
-                                        <div class="project-link-group">
-                                            <i class="fas fa-project-diagram text-primary"></i>
-                                            <a th:href="@{'/projects/' + ${task.projectId}}" 
-                                               class="project-link" 
-                                               th:text="${task.projectName}">
-                                                Tên dự án
-                                            </a>
-                                        </div>
-
                                         <div class="task-date-group">
                                             <div class="date-icon-wrapper">
                                                 <i class="fas fa-calendar-days"></i>
@@ -79,7 +124,7 @@
                                     <!-- Middle Column -->
                                     <div class="task-middle-col">
                                         <div class="task-description-wrapper">
-                                            <p class="task-description" 
+                                            <p class="task-description formatted-description" 
                                                th:text="${task.description ?: 'Chưa có mô tả cho công việc này'}">
                                                 Mô tả công việc
                                             </p>
@@ -95,6 +140,15 @@
 
                                     <!-- Right Column -->
                                     <div class="task-right-col">
+                                         <!-- Project Link -->
+                                         <div class="project-link-group">
+                                            <i class="fas fa-project-diagram text-primary"></i>
+                                            <a th:href="@{'/projects/' + ${task.projectId}}" 
+                                               class="project-link" 
+                                               th:text="${task.projectName}">
+                                                Tên dự án
+                                            </a>
+                                        </div>
                                         <div class="task-status-group">
                                             <span class="status-label">Trạng thái</span>
                                             <div class="dropdown status-dropdown">

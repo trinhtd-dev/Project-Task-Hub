@@ -22,7 +22,7 @@ import com.team11.taskmanagement.exception.*;
 import com.team11.taskmanagement.config.CloudinaryConfig;
 import com.cloudinary.Cloudinary;
 import com.team11.taskmanagement.service.CloudinaryService;
-
+import com.team11.taskmanagement.model.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -189,6 +189,10 @@ public class UserService {
         } catch (Exception e) {
             throw new FileUploadException("Không thể tải lên ảnh. Vui lòng thử lại", e);
         }
+    }
+
+    public boolean isAdmin() {
+        return getCurrentUser().getRole().equals(UserRole.ADMIN);
     }
 
 }

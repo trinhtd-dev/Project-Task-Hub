@@ -107,3 +107,61 @@
 .status-dropdown .dropdown-item:hover {
     background-color: #f3f4f6;
 }
+
+/* Filter section styles */
+.filters-section {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.input-group-text {
+    background-color: transparent;
+    border-right: none;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: none;
+}
+
+.form-select {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.form-select:hover {
+    border-color: #0d6efd;
+}
+
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: none;
+}
+
+/* Animation for filtering */
+.task-item {
+    transition: all 0.3s ease;
+}
+
+.task-item[style*="display: none"] {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.task-item[style*="display: block"] {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .filters-section .row {
+        row-gap: 1rem;
+    }
+    
+    .input-group, .form-select {
+        width: 100%;
+    }
+}
