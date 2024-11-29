@@ -31,15 +31,15 @@ public class CommentApiController {
         return new ResponseEntity<>(createdComment, HttpStatus.CREATED);
     }
 
-    @GetMapping("/task/{taskId}")
-    public ResponseEntity<List<CommentResponseDTO>> getCommentsByTaskId(@PathVariable Long taskId) {
-        List<CommentResponseDTO> comments = commentService.getCommentsByTaskId(taskId);
-        return ResponseEntity.ok(comments);
-    }
-
     @GetMapping("/project/{projectId}")
     public ResponseEntity<List<CommentResponseDTO>> getCommentsByProjectId(@PathVariable Long projectId) {
         List<CommentResponseDTO> comments = commentService.getCommentsByProjectId(projectId);
+        return ResponseEntity.ok(comments);
+    }
+
+    @GetMapping("/task/{taskId}")
+    public ResponseEntity<List<CommentResponseDTO>> getCommentsByTaskId(@PathVariable Long taskId) {
+        List<CommentResponseDTO> comments = commentService.getCommentsByTaskId(taskId);
         return ResponseEntity.ok(comments);
     }
 

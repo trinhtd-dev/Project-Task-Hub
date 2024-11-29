@@ -1,17 +1,32 @@
 package com.team11.taskmanagement.mapper;
 
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.MappingTarget;
 
+import com.team11.taskmanagement.dto.attachment.AttachmentCreateDTO;
 import com.team11.taskmanagement.dto.attachment.AttachmentResponseDTO;
 import com.team11.taskmanagement.model.Attachment;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class})
+@Mapper(
+    componentModel = "spring", 
+    uses = {UserMapper.class},
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface AttachmentMapper {
-    AttachmentMapper INSTANCE = Mappers.getMapper(AttachmentMapper.class);
-
+    
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "task", ignore = true)
+    @Mapping(target = "uploadedBy", ignore = true)
+    @Mapping(target = "uploadedAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "storedFileName", source = "filePath")
+    Attachment toEntity(AttachmentCreateDTO dto);
+    
     @Mapping(source = "uploadedBy", target = "uploadedBy")
-    @Mapping(source = "uploadedAt", target = "uploadedAt")
     AttachmentResponseDTO toResponseDTO(Attachment attachment);
+    
+    List<AttachmentResponseDTO> toResponseDTOs(List<Attachment> attachments);
 } 

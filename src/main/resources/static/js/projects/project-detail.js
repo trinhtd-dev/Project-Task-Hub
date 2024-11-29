@@ -205,10 +205,59 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 
-    // Show attachments
+
+     // Show attachments
+   
+     const projectDocumentsModal = document.getElementById('projectDocumentsModal');
+     
+    let currentContext = {
+        type: null,
+        id: null
+    }
+
+    // Set current context when click on  task button
     const documentProjectBtn = document.querySelector('[document-project-button]');
-    const projectDocumentsModal = document.getElementById('projectDocumentsModal');
-    
+    const discussionProjectBtn = document.querySelector('[discussion-project-button]');
+    const attachmentTaskBtns = document.querySelectorAll('.task-btn-attachment');
+    const discussionTaskBtns = document.querySelectorAll('.task-btn-discussion');
+
+    documentProjectBtn.addEventListener('click', async () => {
+        currentContext = {
+            type: 'project',
+            id: projectId
+        };
+        console.log(currentContext);
+    });
+
+    discussionProjectBtn.addEventListener('click', async () => {
+        currentContext = {
+            type: 'project',
+            id: projectId
+        };
+        console.log(currentContext);
+    });
+
+    attachmentTaskBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            currentContext = {
+                type: 'task',
+                id: btn.getAttribute('data-task-id')
+            };
+        });
+    });
+
+    discussionTaskBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            currentContext = {
+                type: 'task',
+                id: btn.getAttribute('data-task-id')
+            };
+            console.log(currentContext);
+        });
+    });
+
+   
+    // Show attachments for project
     documentProjectBtn.addEventListener('click', async () => {
         const modal = new bootstrap.Modal(projectDocumentsModal);
         modal.show();
@@ -295,46 +344,38 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-
-    // Upload file 
-    const uploadForm = document.getElementById('uploadForm');
-    uploadForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
+    // Show attachments for task
+    attachmentTaskBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const modal = new bootstrap.Modal(projectDocumentsModal);
+        modal.show();
         
-        const fileInput = document.getElementById('fileUpload');
-        const file = fileInput.files[0];
-        
-        if (!file) {
-            toast.show('error', 'Vui lòng chọn tập tin');
-            return;
-        }
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        // Get project ID and CSRF tokens
-        const projectId = document.querySelector('[data-project-id]').getAttribute('data-project-id');
-        const token = document.querySelector("meta[name='_csrf']")?.content;
-        const header = document.querySelector("meta[name='_csrf_header']")?.content;
-        
-        try {
-            const response = await fetch(`/api/attachments/upload/${projectId}`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    [header]: token
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Tải lên thất bại: ${response.status}`);
+        // Xử lý khi modal được đóng
+        projectDocumentsModal.addEventListener('hidden.bs.modal', function () {
+            document.body.classList.remove('modal-open');
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.remove();
             }
+        });
+
+        const response = await fetch(`/api/attachments/task/${currentContext.id}`, {
+            headers: {
+                [header]: token
+            }
+        });
+
+        const attachments = await response.json();
+        
+        // Clear existing list
+        documentsList.innerHTML = '';
+        
+        // Add attachments to list
+        attachments.forEach(attachment => {
+            const fileSize = (attachment.fileSize / 1024).toFixed(2); // Convert to KB
+            const uploadDate = new Date(attachment.uploadedAt).toLocaleString();
             
-            const attachment = await response.json();
-            
-            // Add new file to the documents list
-            const documentsList = document.querySelector('.documents-list');
-            const newDoc = `
+            const docHtml = `
                 <div class="document-item p-3 border-bottom" data-attachment-id="${attachment.id}">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
@@ -342,7 +383,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             <div>
                                 <h6 class="mb-0">${attachment.originalFileName}</h6>
                                 <small class="text-muted">
-                                    ${new Date().toLocaleString()} by ${attachment.uploadedBy?.name || 'Unknown'}
+                                    ${fileSize} KB • Uploaded by ${attachment.uploadedBy.name} • ${uploadDate}
                                 </small>
                             </div>
                         </div>
@@ -361,25 +402,202 @@ document.addEventListener("DOMContentLoaded", function() {
                     </div>
                 </div>
             `;
-            documentsList.insertAdjacentHTML('afterbegin', newDoc);
+            documentsList.insertAdjacentHTML('beforeend', docHtml);
+        });
+        });
+    });
+
+    // Upload file 
+    const uploadForm = document.getElementById('uploadForm');
+    const documentsList = document.querySelector('.documents-list');
+
+    // Load attachments khi mở modal
+    documentProjectBtn.addEventListener('click', async () => {
+        const modal = new bootstrap.Modal(projectDocumentsModal);
+        const projectId = document.querySelector('[data-project-id]').getAttribute('data-project-id');
+        
+        try {
+            const response = await fetch(`/api/attachments/project/${projectId}`, {
+                headers: {
+                    [header]: token
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch attachments');
+            }
+
+            const attachments = await response.json();
+            
+            // Clear existing list
+            documentsList.innerHTML = '';
+            
+            // Add attachments to list
+            attachments.forEach(attachment => {
+                const fileSize = (attachment.fileSize / 1024).toFixed(2); // Convert to KB
+                const uploadDate = new Date(attachment.uploadedAt).toLocaleString('vi-VN');
+                
+                const docHtml = `
+                    <div class="document-item p-3 border-bottom" data-attachment-id="${attachment.id}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file fa-lg text-info me-3"></i>
+                                <div>
+                                    <h6 class="mb-0">${attachment.originalFileName}</h6>
+                                    <small class="text-muted">
+                                        ${fileSize} KB • Uploaded by ${attachment.uploadedBy.name} • ${uploadDate}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="btn-group">
+                                <a href="${attachment.filePath}" 
+                                   class="btn btn-sm btn-outline-primary" 
+                                   target="_blank"
+                                   download="${attachment.originalFileName}">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger delete-attachment" 
+                                        data-attachment-id="${attachment.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                documentsList.insertAdjacentHTML('beforeend', docHtml);
+            });
+
+            modal.show();
+            // Close modal when click outside
+            projectDocumentsModal.addEventListener('hidden.bs.modal', function () {
+                document.body.classList.remove('modal-open');
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+            });
+            
+        } catch (error) {
+            console.error('Error:', error);
+            toast.show('error', 'Có lỗi xảy ra khi tải danh sách tài liệu');
+        }
+    });
+
+
+
+    // Upload file
+    uploadForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const fileInput = document.getElementById('fileUpload');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            toast.show('error', 'Vui lòng chọn tập tin');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        formData.append(currentContext.type === 'project' ? 'projectId' : 'taskId', currentContext.id);
+        
+        try {
+            const response = await fetch('/api/attachments/upload', {
+                method: 'POST',
+                headers: {
+                    [header]: token
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Upload failed');
+            }
+            
+            const attachment = await response.json();
+            
+            // Add new file to the list
+            const docHtml = `
+                <div class="document-item p-3 border-bottom" data-attachment-id="${attachment.id}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file fa-lg text-info me-3"></i>
+                            <div>
+                                <h6 class="mb-0">${attachment.originalFileName}</h6>
+                                <small class="text-muted">
+                                    ${(attachment.fileSize / 1024).toFixed(2)} KB • 
+                                    Uploaded by ${attachment.uploadedBy.name} • 
+                                    ${new Date(attachment.uploadedAt).toLocaleString('vi-VN')}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <a href="${attachment.filePath}" 
+                               class="btn btn-sm btn-outline-primary" 
+                               target="_blank"
+                               download="${attachment.originalFileName}">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-danger delete-attachment" 
+                                    data-attachment-id="${attachment.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            documentsList.insertAdjacentHTML('afterbegin', docHtml);
             
             // Reset form
             fileInput.value = '';
             toast.show('success', 'Tải lên tập tin thành công');
             
         } catch (error) {
-            console.error('Lỗi:', error);
+            console.error('Error:', error);
             toast.show('error', 'Có lỗi xảy ra khi tải lên tập tin');
         }
     });
 
+    // Delete attachment
+    document.addEventListener('click', async function(e) {
+        if (e.target.classList.contains('delete-attachment')) {
+            const attachmentId = e.target.dataset.attachmentId;
+            const confirmed = await confirmDeleteModal('tài liệu');
+            
+            if (confirmed) {
+                try {
+                    const response = await fetch(`/api/attachments/${attachmentId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            [header]: token
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Delete failed');
+                    }
+
+                    // Remove attachment from UI
+                    const attachmentElement = document.querySelector(`[data-attachment-id="${attachmentId}"]`);
+                    attachmentElement.remove();
+                    toast.show('success', 'Đã xóa tài liệu');
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    toast.show('error', 'Có lỗi xảy ra khi xóa tài liệu');
+                }
+            }
+        }
+    });
+
+   
 
     // Comments handling
     const commentForm = document.querySelector('#projectDiscussionsModal form');
     const commentsList = document.querySelector('.comments-list');
 
     // show project when click discussion button
-    const discussionProjectBtn = document.querySelector('[discussion-project-button]');
     discussionProjectBtn.addEventListener('click', async function() {
         const modal = new bootstrap.Modal(projectDiscussionsModal);
         const projectId = document.querySelector('[data-project-id]').getAttribute('data-project-id');
@@ -467,20 +685,114 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    // Show task discussion
+    discussionTaskBtns.forEach(btn => {
+        btn.addEventListener('click', (async () => {
+            const taskId = btn.getAttribute('data-task-id');
+            const modal = new bootstrap.Modal(projectDiscussionsModal);
+            // Fetch comments from API
+            try {
+                // Fetch comments from API
+                const response = await fetch(`/api/comments/task/${currentContext.id}`, {
+                    headers: {
+                        [header]: token
+                    }
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Có lỗi xảy ra khi tải bình luận');
+                }
+    
+                const comments = await response.json();
+                const commentsList = document.querySelector('.comments-list');
+                
+                // Clear existing comments
+                commentsList.innerHTML = '';
+                
+                // Add comments to list
+                comments.forEach(comment => {
+                    const commentHtml = `
+                        <div class="comment-item mb-3" data-comment-id="${comment.id}">
+                            <div class="d-flex">
+                                <img src="${comment.createdBy?.avatarUrl || '/images/default-avatar.png'}" 
+                                     class="rounded-circle me-2" 
+                                     style="width: 40px; height: 40px;">
+                                <div class="flex-grow-1">
+                                    <div class="bg-light p-3 rounded">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0">${comment.createdBy?.name || 'Unknown User'}</h6>
+                                            <div class="d-flex align-items-center">
+                                                <small class="text-muted me-2">
+                                                    ${comment.updatedAt ? 
+                                                      `Đã chỉnh sửa: ${new Date(comment.updatedAt).toLocaleString('vi-VN')}` :
+                                                      new Date(comment.createdAt).toLocaleString('vi-VN')}
+                                                </small>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-link btn-sm p-0" data-bs-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <button class="dropdown-item edit-comment" 
+                                                                    data-comment-id="${comment.id}">
+                                                                <i class="fas fa-edit me-1"></i>Sửa
+                                                            </button>
+                                                        </li>
+                                                        <li>
+                                                            <button class="dropdown-item delete-comment text-danger" 
+                                                                    data-comment-id="${comment.id}">
+                                                                <i class="fas fa-trash-alt me-1"></i>Xóa
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="mb-0">${comment.content}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    commentsList.insertAdjacentHTML('beforeend', commentHtml);
+                });
+    
+                // Scroll xuống cuối để xem tin nhắn cũ nhất
+                commentsList.scrollTop = commentsList.scrollHeight;
+                projectDiscussionsModal.addEventListener('hidden.bs.modal', function () {
+                    document.body.classList.remove('modal-open');
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                });
+                modal.show();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                toast.show('error', 'Có lỗi xảy ra khi tải bình luận');
+            }
+
+            modal.show();
+        }));
+    });
+
+
     // Submit new comment
     commentForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const commentContent = this.querySelector('textarea').value;
         if (!commentContent.trim()) {
-            toast.show('error ', 'Vui lòng nhập nội dung bình luận');
+            toast.show('error', 'Vui lòng nhập nội dung bình luận');
             return;
         }
 
         const commentData = {
-            content: commentContent,
-            projectId: projectId
         };
+
+        commentData[currentContext.type === 'project' ? 'projectId' : 'taskId'] = currentContext.id;
+        commentData.content = commentContent;
 
         try {
             const response = await fetch('/api/comments', {
@@ -499,7 +811,6 @@ document.addEventListener("DOMContentLoaded", function() {
             
             const comment = await response.json();
             
-            console.log(comment);
             // Add new comment to the list
             const commentHtml = `
                 <div class="comment-item mb-3" data-comment-id="${comment.id}">
@@ -588,7 +899,7 @@ document.addEventListener("DOMContentLoaded", function() {
             editForm.querySelector('.save-edit').addEventListener('click', async function() {
                 const newContent = editForm.querySelector('textarea').value;
                 if (!newContent.trim()) {
-                    toast.show('warning', 'Nội dung không được để trống');
+                    toast.show('error', 'Nội dung không được để trống');
                     return;
                 }
 

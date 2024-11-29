@@ -15,11 +15,11 @@
                     <div class="card-body">
                         <div class="project-header" th:attr="data-project-id=${project.id}">
                             <div class="project-actions">
-                                <button class="btn btn-documents" document-project-button data-bs-toggle="modal" data-bs-target="#projectDocumentsModal">
+                                <button class="btn btn-documents" document-project-button data-project-id="${project.id}" data-bs-toggle="modal" data-bs-target="#projectDocumentsModal">
                                     <i class="fas fa-file-alt me-1"></i>Tài liệu
                                 </button>
                                 
-                                <button class="btn btn-discussions" discussion-project-button data-bs-toggle="modal" data-bs-target="#projectDiscussionsModal">
+                                <button class="btn btn-discussions" discussion-project-button data-project-id="${project.id}" data-bs-toggle="modal" data-bs-target="#projectDiscussionsModal">
                                     <i class="fas fa-comments me-1"></i>Thảo luận
                                 </button>
                                 
@@ -252,9 +252,23 @@
                                         </div>
                                     </div>
 
-                                    <!-- Right Column -->
+
                                     <div class="task-right-col">
                                         <div class="task-actions-group">
+                                            <!-- attachment button -->
+                                            <button class="task-btn task-btn-attachment" 
+                                                    title="Tài liệu"
+                                                    th:data-task-id="${task.id}">
+                                                <i class="fas fa-file-alt"></i>
+                                                <span>Tài liệu</span>
+                                            </button>
+                                            <!-- discussion button -->
+                                            <button class="task-btn task-btn-discussion" 
+                                                    title="Thảo luận"
+                                                    th:data-task-id="${task.id}">
+                                                <i class="fas fa-comments"></i>
+                                                <span>Thảo luận</span>
+                                            </button>
                                             <button class="task-btn task-btn-edit" 
                                                     title="Chỉnh sửa"
                                                     th:data-task-id="${task.id}">

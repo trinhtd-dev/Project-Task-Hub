@@ -116,4 +116,9 @@ public class TaskService {
         task.setUpdatedAt(LocalDateTime.now());
         return taskMapper.toResponseDTO(taskRepository.save(task));
     }
+
+    public Task getTaskEntityById(Long id) {
+        return taskRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+    }
 }

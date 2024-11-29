@@ -24,7 +24,7 @@ public class Attachment {
     @Column(nullable = false)
     private String originalFileName;
 
-    @Column(nullable = false)
+    @Column(name = "stored_file_name", nullable = false)
     private String storedFileName;
 
     @Column(nullable = false)

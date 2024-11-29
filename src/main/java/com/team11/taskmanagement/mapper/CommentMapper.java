@@ -5,14 +5,15 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import com.team11.taskmanagement.dto.comment.CommentCreateDTO;
 import com.team11.taskmanagement.dto.comment.CommentResponseDTO;
 import com.team11.taskmanagement.model.Comment;
 
 @Mapper(
     componentModel = "spring",
-    uses = {UserMapper.class}
+    uses = {UserMapper.class},
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
 public interface CommentMapper {
     
